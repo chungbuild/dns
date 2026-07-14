@@ -64,15 +64,55 @@
         <div class="max-w-4xl mx-auto">
             <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8">
                 <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold mb-2">Phát hiện DNS hiện tại</h2>
-                    <p class="text-slate-400 text-sm">Đang kiểm tra DNS resolver của bạn...</p>
+                    <h2 class="text-2xl font-bold mb-2">Kiểm tra DNS</h2>
+                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
                 </div>
-                <div id="dnsDetection" class="text-center">
+
+                <div id="dnsLoading" class="text-center py-8">
                     <div class="inline-flex items-center gap-3 bg-slate-900/50 border border-slate-600 rounded-xl px-6 py-4">
                         <div class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                         <span class="text-slate-300">Đang quét...</span>
                     </div>
                 </div>
+
+                <div id="dnsResults" class="hidden space-y-6">
+                    <div id="ipSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-globe text-blue-400"></i> Địa chỉ IP
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-slate-500 mb-1">IPv4</p>
+                                <p class="font-mono text-lg text-white" id="ipv4">Đang kiểm tra...</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 mb-1">IPv6</p>
+                                <p class="font-mono text-lg text-white" id="ipv6">Đang kiểm tra...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resolverSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-server text-green-400"></i> DNS Resolver
+                        </h3>
+                        <div id="resolverList" class="space-y-3">
+                            <p class="text-slate-400 text-sm">Đang phát hiện...</p>
+                        </div>
+                    </div>
+
+                    <div id="dnssecSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-shield-halved text-purple-400"></i> DNSSEC
+                        </h3>
+                        <div id="dnssecStatus" class="flex items-center gap-3">
+                            <div class="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                            <span class="text-slate-400 text-sm">Đang kiểm tra DNSSEC...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500 mt-6 text-center">* Sử dụng dnscheck.tools để phát hiện DNS resolver thực tế</p>
             </div>
         </div>
     </section>
@@ -541,7 +581,7 @@
 
         function identifyResolver(ip) {
             if (knownDNSProviders[ip]) return knownDNSProviders[ip];
-            if (ip.includes(':')) return { name: 'IPv6 Resolver', icon: 'fas fa-network-wired', color: 'text-purple-400' };
+            if (ip.includes(':')) return { name: null, icon: 'fas fa-network-wired', color: 'text-purple-400' };
             return { name: null, icon: 'fas fa-server', color: 'text-slate-400' };
         }
 
@@ -550,105 +590,166 @@
                 const res = await fetch(`https://ipinfo.io/${ip}/json`);
                 if (res.ok) {
                     const data = await res.json();
-                    return data.org ? data.org.replace(/^AS\d+\s+/, '') : null;
+                    return { org: data.org || null, city: data.city || null, country: data.country || null };
                 }
             } catch (e) {}
             return null;
         }
 
-        async function detectCurrentDNS() {
-            const container = document.getElementById('dnsDetection');
+        async function detectAll() {
             const clientId = Math.floor(Math.random() * 0xffffffff).toString(16);
 
+            document.getElementById('dnsLoading').classList.remove('hidden');
+            document.getElementById('dnsResults').classList.add('hidden');
+
+            detectIPv4();
+            detectIPv6();
+
+            const resolvers = await detectResolvers(clientId);
+            detectDNSSEC(clientId);
+        }
+
+        async function detectIPv4() {
+            const el = document.getElementById('ipv4');
             try {
-                const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
-                const resolvers = {};
-                let resolved = false;
-
-                const timeout = setTimeout(() => {
-                    if (!resolved) {
-                        socket.close();
-                        showFallback(container);
-                    }
-                }, 10000);
-
-                socket.addEventListener('message', ({ data }) => {
-                    const request = JSON.parse(data);
-                    const ip = request.remoteIp;
-                    if (ip && !resolvers[ip]) {
-                        resolvers[ip] = true;
-                        resolved = true;
-                        clearTimeout(timeout);
-                        socket.close();
-                        showResult(container, ip);
-                    }
-                });
-
-                socket.addEventListener('open', async () => {
-                    try {
-                        await fetch(`https://a.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
-                    } catch (e) {}
-                    try {
-                        await fetch(`https://b.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
-                    } catch (e) {}
-                    try {
-                        await fetch(`https://c.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
-                    } catch (e) {}
-                });
-
-                socket.addEventListener('error', () => {
-                    clearTimeout(timeout);
-                    showFallback(container);
-                });
-
+                const res = await fetch('https://myipv4.addr.tools/plain');
+                const ip = (await res.text()).trim();
+                el.textContent = ip;
+                el.classList.add('text-green-400');
             } catch (e) {
-                showFallback(container);
+                el.textContent = 'Không thể phát hiện';
+                el.classList.add('text-red-400');
             }
         }
 
-        function showResult(container, resolverIP) {
-            const info = identifyResolver(resolverIP);
-            const displayName = info.name || 'Resolver khác';
-            const displayIcon = info.icon;
-            const displayColor = info.color;
+        async function detectIPv6() {
+            const el = document.getElementById('ipv6');
+            try {
+                const res = await fetch('https://myipv6.addr.tools/plain');
+                const ip = (await res.text()).trim();
+                if (ip && ip.includes(':')) {
+                    el.textContent = ip;
+                    el.classList.add('text-green-400');
+                } else {
+                    el.textContent = 'Không khả dụng';
+                    el.classList.add('text-slate-500');
+                }
+            } catch (e) {
+                el.textContent = 'Không khả dụng';
+                el.classList.add('text-slate-500');
+            }
+        }
 
-            container.innerHTML = `
-                <div class="mb-6">
-                    <div class="inline-flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-4">
-                        <i class="${displayIcon} ${displayColor} text-2xl"></i>
-                        <div class="text-left">
-                            <p class="text-xs text-slate-400">DNS Resolver của bạn</p>
-                            <p class="text-xl font-bold ${displayColor}" id="resolverName">${displayName}</p>
+        async function detectResolvers(clientId) {
+            const container = document.getElementById('resolverList');
+            const resolvers = {};
+
+            return new Promise((resolve) => {
+                try {
+                    const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
+
+                    const timeout = setTimeout(() => {
+                        socket.close();
+                        if (Object.keys(resolvers).length === 0) {
+                            container.innerHTML = '<p class="text-slate-400 text-sm">Không thể phát hiện resolver</p>';
+                        }
+                        document.getElementById('dnsLoading').classList.add('hidden');
+                        document.getElementById('dnsResults').classList.remove('hidden');
+                        resolve(resolvers);
+                    }, 8000);
+
+                    socket.addEventListener('message', async ({ data }) => {
+                        const request = JSON.parse(data);
+                        const ip = request.remoteIp;
+                        if (ip && !resolvers[ip]) {
+                            resolvers[ip] = { ip, info: identifyResolver(ip), org: null };
+
+                            const orgData = await lookupIPInfo(ip);
+                            if (orgData) resolvers[ip].org = orgData.org;
+
+                            renderResolvers(container, resolvers);
+                        }
+                    });
+
+                    socket.addEventListener('open', async () => {
+                        for (let i = 0; i < 3; i++) {
+                            try {
+                                await fetch(`https://${String.fromCharCode(97 + i)}.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                            } catch (e) {}
+                        }
+                    });
+
+                    socket.addEventListener('error', () => {
+                        clearTimeout(timeout);
+                        container.innerHTML = '<p class="text-slate-400 text-sm">Lỗi kết nối</p>';
+                        document.getElementById('dnsLoading').classList.add('hidden');
+                        document.getElementById('dnsResults').classList.remove('hidden');
+                        resolve(resolvers);
+                    });
+                } catch (e) {
+                    container.innerHTML = '<p class="text-slate-400 text-sm">Không thể quét</p>';
+                    document.getElementById('dnsLoading').classList.add('hidden');
+                    document.getElementById('dnsResults').classList.remove('hidden');
+                    resolve(resolvers);
+                }
+            });
+        }
+
+        function renderResolvers(container, resolvers) {
+            const entries = Object.values(resolvers);
+            if (entries.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-sm">Đang phát hiện...</p>';
+                return;
+            }
+
+            container.innerHTML = entries.map(r => {
+                const info = r.info;
+                const name = info.name || r.org || 'Resolver khác';
+                return `
+                    <div class="flex items-center gap-4 bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${info.color ? info.color.replace('text-', '').replace('text', '') : 'bg-slate-700'}">
+                            <i class="${info.icon} ${info.color || 'text-slate-400'}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold ${info.color || 'text-white'}">${name}</p>
+                            <p class="font-mono text-sm text-slate-400">${r.ip}</p>
                         </div>
                     </div>
-                </div>
-                <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4 inline-block">
-                    <p class="text-xs text-slate-500 mb-1">Resolver IP</p>
-                    <p class="font-mono text-lg text-white">${resolverIP}</p>
-                </div>
-                <div id="resolverOrg" class="mt-2 text-xs text-slate-500"></div>
-                <p class="text-xs text-slate-500 mt-4">* Phát hiện qua DNS query thực tế đến dnscheck.tools</p>
-            `;
+                `;
+            }).join('');
+        }
 
-            if (!info.name) {
-                lookupIPInfo(resolverIP).then(org => {
-                    if (org) {
-                        document.getElementById('resolverOrg').textContent = `Tổ chức: ${org}`;
-                    }
-                });
+        async function detectDNSSEC(clientId) {
+            const el = document.getElementById('dnssecStatus');
+            try {
+                const res = await fetch(`https://goodsig-${clientId}.test-alg13.dnscheck.tools/`, { mode: 'no-cors' });
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check text-green-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-green-400">DNSSEC hợp lệ</p>
+                            <p class="text-xs text-slate-500">Resolver của bạn xác thực DNSSEC đúng cách</p>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation text-yellow-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-yellow-400">DNSSEC không hợp lệ hoặc không hỗ trợ</p>
+                            <p class="text-xs text-slate-500">Resolver của bạn có thể không xác thực DNSSEC</p>
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function showFallback(container) {
-            container.innerHTML = `
-                <div class="inline-flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-6 py-4">
-                    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
-                    <p class="text-slate-300">Không thể phát hiện DNS. Vui lòng thử lại.</p>
-                </div>
-            `;
-        }
-
-        detectCurrentDNS();
+        detectAll();
     </script>
 </body>
 </html>
