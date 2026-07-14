@@ -676,7 +676,9 @@
             document.getElementById('dnsResults').classList.add('hidden');
 
             detectIPInfo();
-            const resolvers = await detectResolvers(clientId);
+            const { resolvers, clientSubnet } = await detectResolvers(clientId);
+
+            renderECS(clientSubnet);
 
             document.getElementById('dnsLoading').classList.add('hidden');
             document.getElementById('dnsResults').classList.remove('hidden');
@@ -684,7 +686,6 @@
 
         async function detectIPInfo() {
             const el = document.getElementById('ipInfo');
-            const ecsEl = document.getElementById('ecsInfo');
             try {
                 const v4Res = await fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null);
                 const ipv4 = v4Res ? v4Res.trim() : null;
@@ -707,41 +708,14 @@
                         ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
                     </div>
                 `;
-
-                detectECS(ipv4);
             } catch (e) {
                 el.innerHTML = '<p class="text-red-400">Lỗi khi detect IP</p>';
             }
         }
 
-        async function detectECS(clientIP) {
+        function renderECS(subnet) {
             const ecsEl = document.getElementById('ecsInfo');
-            let ecsSubnet = null;
-
-            try {
-                const testId = Math.random().toString(36).substring(2, 10);
-                const urls = [
-                    `https://ecs-a-${testId}.test.dnscheck.tools/`,
-                    `https://ecs-b-${testId}.test.dnscheck.tools/`,
-                    `https://ecs-c-${testId}.test.dnscheck.tools/`
-                ];
-
-                for (const url of urls) {
-                    try {
-                        const res = await fetch(url);
-                        if (res.ok) {
-                            const text = await res.text();
-                            const match = text.match(/(\d+\.\d+\.\d+\.\d+\/\d+)/);
-                            if (match) {
-                                ecsSubnet = match[1];
-                                break;
-                            }
-                        }
-                    } catch (e) {}
-                }
-            } catch (e) {}
-
-            if (ecsSubnet) {
+            if (subnet) {
                 ecsEl.innerHTML = `
                     <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
                         <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
@@ -749,7 +723,7 @@
                             <p class="text-xs sm:text-sm text-green-400 font-medium">DNS resolver quảng bá IP subnet của bạn (ECS)</p>
                         </div>
                         <p class="text-[10px] sm:text-xs text-slate-400 mt-1.5 sm:mt-2">Subnet được gửi:</p>
-                        <p class="font-mono text-xs sm:text-sm text-purple-400 mt-0.5 sm:mt-1 break-all">${ecsSubnet}</p>
+                        <p class="font-mono text-xs sm:text-sm text-purple-400 mt-0.5 sm:mt-1 break-all">${subnet}</p>
                         <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">Nhà cung cấp DNS đang chia sẻ subnet IP của bạn với các DNS authoritative server để cải thiện tốc độ phân giải.</p>
                     </div>
                 `;
@@ -769,6 +743,7 @@
         async function detectResolvers(clientId) {
             const container = document.getElementById('resolverList');
             const resolvers = {};
+            let clientSubnet = null;
 
             return new Promise((resolve) => {
                 try {
@@ -776,12 +751,17 @@
                     const timeout = setTimeout(() => {
                         socket.close();
                         renderResolvers(container, resolvers);
-                        resolve(resolvers);
+                        resolve({ resolvers, clientSubnet });
                     }, 8000);
 
                     socket.addEventListener('message', async ({ data }) => {
                         const request = JSON.parse(data);
                         const ip = request.remoteIp;
+
+                        if (request.clientSubnet && !request.clientSubnet.endsWith('/0') && !clientSubnet) {
+                            clientSubnet = request.clientSubnet;
+                        }
+
                         if (ip && !resolvers[ip]) {
                             resolvers[ip] = { ip, proto: request.proto, info: null, org: null, city: null, country: null, ns: null };
 
@@ -816,11 +796,11 @@
                     socket.addEventListener('error', () => {
                         clearTimeout(timeout);
                         container.innerHTML = '<p class="text-slate-400 text-sm">Lỗi kết nối WebSocket</p>';
-                        resolve(resolvers);
+                        resolve({ resolvers, clientSubnet });
                     });
                 } catch (e) {
                     container.innerHTML = '<p class="text-slate-400 text-sm">Không thể quét</p>';
-                    resolve(resolvers);
+                    resolve({ resolvers, clientSubnet });
                 }
             });
         }
