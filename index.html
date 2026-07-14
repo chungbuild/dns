@@ -524,85 +524,103 @@
 
         renderProviders();
 
-        const knownProviders = {
-            'Cloudflare': { icon: 'fas fa-cloud', color: 'text-orange-400', dot: '1.1.1.1', dohUrl: 'https://1.1.1.1/dns-query' },
-            'Google': { icon: 'fab fa-google', color: 'text-blue-400', dot: 'dns.google', dohUrl: 'https://dns.google/dns-query' },
-            'Quad9': { icon: 'fas fa-hashtag', color: 'text-pink-400', dot: 'dns.quad9.net', dohUrl: 'https://dns.quad9.net/dns-query' },
-            'AdGuard': { icon: 'fas fa-shield-halved', color: 'text-red-400', dot: 'dns.adguard.com', dohUrl: 'https://dns.adguard.com/dns-query' },
-            'NextDNS': { icon: 'fas fa-cog', color: 'text-cyan-400', dot: 'firefox.dns.nextdns.io', dohUrl: 'https://firefox.dns.nextdns.io/dns-query' },
+        const knownDNSProviders = {
+            '1.1.1.1': { name: 'Cloudflare', icon: 'fas fa-cloud', color: 'text-orange-400' },
+            '1.0.0.1': { name: 'Cloudflare', icon: 'fas fa-cloud', color: 'text-orange-400' },
+            '8.8.8.8': { name: 'Google DNS', icon: 'fab fa-google', color: 'text-blue-400' },
+            '8.8.4.4': { name: 'Google DNS', icon: 'fab fa-google', color: 'text-blue-400' },
+            '9.9.9.9': { name: 'Quad9', icon: 'fas fa-hashtag', color: 'text-pink-400' },
+            '149.112.112.112': { name: 'Quad9', icon: 'fas fa-hashtag', color: 'text-pink-400' },
+            '94.140.14.14': { name: 'AdGuard DNS', icon: 'fas fa-shield-halved', color: 'text-red-400' },
+            '94.140.15.15': { name: 'AdGuard DNS', icon: 'fas fa-shield-halved', color: 'text-red-400' },
+            '45.90.28.0': { name: 'NextDNS', icon: 'fas fa-cog', color: 'text-cyan-400' },
+            '45.90.30.0': { name: 'NextDNS', icon: 'fas fa-cog', color: 'text-cyan-400' },
+            '208.67.222.222': { name: 'OpenDNS', icon: 'fas fa-globe', color: 'text-teal-400' },
+            '208.67.220.220': { name: 'OpenDNS', icon: 'fas fa-globe', color: 'text-teal-400' },
         };
+
+        function identifyResolver(ip) {
+            if (knownDNSProviders[ip]) return knownDNSProviders[ip];
+            if (ip.includes(':')) return { name: 'IPv6 Resolver', icon: 'fas fa-network-wired', color: 'text-purple-400' };
+            return { name: 'Resolver khác', icon: 'fas fa-server', color: 'text-slate-400' };
+        }
 
         async function detectCurrentDNS() {
             const container = document.getElementById('dnsDetection');
-            const testDomain = 'example.com';
+            const clientId = Math.floor(Math.random() * 0xffffffff).toString(16);
 
-            const queries = Object.entries(knownProviders).map(async ([name, info]) => {
-                const start = Date.now();
-                try {
-                    const url = new URL(info.dohUrl);
-                    url.searchParams.set('name', testDomain);
-                    url.searchParams.set('type', 'A');
+            try {
+                const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
+                const resolvers = {};
+                let resolved = false;
 
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 5000);
-
-                    const res = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: { 'Accept': 'application/dns-json' },
-                        signal: controller.signal,
-                    });
-                    clearTimeout(timeout);
-
-                    const elapsed = Date.now() - start;
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        const ips = data.Answer ? data.Answer.filter(a => a.type === 1).map(a => a.data) : [];
-                        return { name, latency: elapsed, status: 'ok', ips };
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        socket.close();
+                        showFallback(container);
                     }
-                    return { name, latency: elapsed, status: 'error', ips: [] };
-                } catch (e) {
-                    return { name, latency: Date.now() - start, status: 'timeout', ips: [] };
-                }
-            });
+                }, 10000);
 
-            const results = await Promise.all(queries);
+                socket.addEventListener('message', ({ data }) => {
+                    const request = JSON.parse(data);
+                    const ip = request.remoteIp;
+                    if (ip && !resolvers[ip]) {
+                        resolvers[ip] = true;
+                        resolved = true;
+                        clearTimeout(timeout);
+                        socket.close();
+                        showResult(container, ip);
+                    }
+                });
 
-            const reachable = results.filter(r => r.status === 'ok');
+                socket.addEventListener('open', async () => {
+                    try {
+                        await fetch(`https://a.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                    } catch (e) {}
+                    try {
+                        await fetch(`https://b.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                    } catch (e) {}
+                    try {
+                        await fetch(`https://c.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                    } catch (e) {}
+                });
 
-            let likelyDNS = 'Không xác định';
-            let likelyIcon = 'fas fa-question-circle';
-            let likelyColor = 'text-slate-400';
+                socket.addEventListener('error', () => {
+                    clearTimeout(timeout);
+                    showFallback(container);
+                });
 
-            if (reachable.length > 0) {
-                const fastest = reachable.reduce((a, b) => a.latency < b.latency ? a : b);
-                likelyDNS = fastest.name;
-                const info = knownProviders[fastest.name];
-                likelyIcon = info.icon;
-                likelyColor = info.color;
+            } catch (e) {
+                showFallback(container);
             }
+        }
 
+        function showResult(container, resolverIP) {
+            const info = identifyResolver(resolverIP);
             container.innerHTML = `
                 <div class="mb-6">
                     <div class="inline-flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-4">
-                        <i class="${likelyIcon} ${likelyColor} text-2xl"></i>
+                        <i class="${info.icon} ${info.color} text-2xl"></i>
                         <div class="text-left">
-                            <p class="text-xs text-slate-400">Bạn đang sử dụng</p>
-                            <p class="text-xl font-bold ${likelyColor}">${likelyDNS}</p>
+                            <p class="text-xs text-slate-400">DNS Resolver của bạn</p>
+                            <p class="text-xl font-bold ${info.color}">${info.name}</p>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    ${results.map(r => `
-                        <div class="bg-slate-900/50 border ${r.status === 'ok' ? 'border-slate-600' : 'border-red-500/30'} rounded-xl p-3 text-center">
-                            <p class="text-xs text-slate-400 mb-1">${r.name}</p>
-                            <p class="${r.status === 'ok' ? 'text-green-400' : 'text-red-400'} text-sm font-medium">
-                                ${r.status === 'ok' ? r.latency + 'ms' : 'Timeout'}
-                            </p>
-                        </div>
-                    `).join('')}
+                <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4 inline-block">
+                    <p class="text-xs text-slate-500 mb-1">Resolver IP</p>
+                    <p class="font-mono text-lg text-white">${resolverIP}</p>
                 </div>
-                <p class="text-xs text-slate-500 mt-4">* Dựa trên tốc độ phản hồi từ các DoH server khi truy cập từ trình duyệt của bạn.</p>
+                <p class="text-xs text-slate-500 mt-4">* Phát hiện qua DNS query thực tế đến dnscheck.tools</p>
+            `;
+        }
+
+        function showFallback(container) {
+            container.innerHTML = `
+                <div class="inline-flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-6 py-4">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                    <p class="text-slate-300">Không thể phát hiện DNS. Vui lòng thử lại.</p>
+                </div>
             `;
         }
 
