@@ -16,68 +16,115 @@
         .provider-card { transition: all 0.3s ease; }
         .provider-card:hover { transform: scale(1.02); }
         .tag { font-size: 0.65rem; padding: 2px 6px; }
+
+        .nav-links { display: flex; gap: 1.5rem; }
+        .hamburger { display: none; cursor: pointer; }
+        .mobile-menu { display: none; }
+        .mobile-menu.active { display: flex; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hamburger { display: flex; }
+            .mobile-menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: rgba(15, 23, 42, 0.98);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+                padding: 0.5rem 1rem 1rem;
+                gap: 0;
+            }
+            .mobile-menu a {
+                padding: 0.75rem 0.5rem;
+                border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+                font-size: 0.95rem;
+            }
+            .mobile-menu a:last-child { border-bottom: none; }
+        }
+
+        .modal-scroll {
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-scroll::-webkit-scrollbar { width: 4px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
     <nav class="border-b border-slate-700/50 backdrop-blur-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shield-halved text-white"></i>
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shield-halved text-white text-sm sm:text-base"></i>
                 </div>
-                <span class="text-xl font-bold">Tổng Kho DNS</span>
+                <span class="text-lg sm:text-xl font-bold">Tổng Kho DNS</span>
             </div>
-            <div class="flex items-center gap-6 text-sm text-slate-300">
+            <div class="nav-links text-sm text-slate-300">
                 <a href="#detection" class="hover:text-white transition-colors">Phát hiện DNS</a>
                 <a href="#creator" class="hover:text-white transition-colors">Tạo Profile</a>
                 <a href="#providers" class="hover:text-white transition-colors">DNS Providers</a>
                 <a href="#about" class="hover:text-white transition-colors">Giới thiệu</a>
             </div>
+            <div class="hamburger flex-col gap-1.5 p-2" onclick="toggleMobileMenu()">
+                <span class="block w-5 h-0.5 bg-slate-300 transition-all" id="bar1"></span>
+                <span class="block w-5 h-0.5 bg-slate-300 transition-all" id="bar2"></span>
+                <span class="block w-3.5 h-0.5 bg-slate-300 transition-all" id="bar3"></span>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#detection" onclick="closeMobileMenu()" class="text-slate-300 hover:text-white transition-colors">Phát hiện DNS</a>
+            <a href="#creator" onclick="closeMobileMenu()" class="text-slate-300 hover:text-white transition-colors">Tạo Profile</a>
+            <a href="#providers" onclick="closeMobileMenu()" class="text-slate-300 hover:text-white transition-colors">DNS Providers</a>
+            <a href="#about" onclick="closeMobileMenu()" class="text-slate-300 hover:text-white transition-colors">Giới thiệu</a>
         </div>
     </nav>
 
-    <header class="py-12 px-4 text-center">
+    <header class="py-8 sm:py-12 px-4 text-center">
         <div class="max-w-4xl mx-auto">
-            <div class="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-4 py-2 mb-6">
-                <i class="fas fa-lock text-blue-400 text-sm"></i>
-                <span class="text-blue-300 text-sm font-medium">DNS Mã hóa</span>
+            <div class="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-6">
+                <i class="fas fa-lock text-blue-400 text-xs sm:text-sm"></i>
+                <span class="text-blue-300 text-xs sm:text-sm font-medium">DNS Mã hóa</span>
             </div>
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="#creator" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
+                <a href="#creator" class="bg-blue-600 hover:bg-blue-700 px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
                     <i class="fas fa-plus-circle"></i> Tạo Profile DNS
                 </a>
-                <a href="#providers" class="bg-slate-700 hover:bg-slate-600 px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2">
+                <a href="#providers" class="bg-slate-700 hover:bg-slate-600 px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
                     <i class="fas fa-globe"></i> Xem DNS Providers
                 </a>
             </div>
         </div>
     </header>
 
-    <section id="detection" class="py-12 px-4">
+    <section id="detection" class="py-8 sm:py-12 px-4">
         <div class="max-w-4xl mx-auto">
-            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-bold mb-2">Kiểm tra DNS</h2>
-                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
+                <div class="text-center mb-6 sm:mb-8">
+                    <h2 class="text-xl sm:text-2xl font-bold mb-2">Kiểm tra DNS</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
                 </div>
 
-                <div id="dnsLoading" class="text-center py-12">
-                    <div class="inline-flex flex-col items-center gap-4">
+                <div id="dnsLoading" class="text-center py-8 sm:py-12">
+                    <div class="inline-flex flex-col items-center gap-3 sm:gap-4">
                         <div class="relative">
-                            <div class="animate-spin w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
+                            <div class="animate-spin w-10 h-10 sm:w-12 sm:h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
                         </div>
-                        <p class="text-slate-400">Đang quét DNS của bạn...</p>
+                        <p class="text-slate-400 text-sm">Đang quét DNS của bạn...</p>
                     </div>
                 </div>
 
-                <div id="dnsResults" class="hidden space-y-4">
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16"></div>
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-globe text-blue-400"></i>
+                <div id="dnsResults" class="hidden space-y-3 sm:space-y-4">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
+                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-globe text-blue-400 text-sm sm:text-base"></i>
                             </div>
-                            <h3 class="font-bold text-lg">Địa chỉ IP của bạn</h3>
+                            <h3 class="font-bold text-base sm:text-lg">Địa chỉ IP của bạn</h3>
                         </div>
                         <div id="ipInfo" class="space-y-3">
                             <div class="flex items-center gap-3 text-slate-500">
@@ -86,13 +133,13 @@
                         </div>
                     </div>
 
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16"></div>
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-server text-green-400"></i>
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
+                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-green-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-server text-green-400 text-sm sm:text-base"></i>
                             </div>
-                            <h3 class="font-bold text-lg">DNS Resolver</h3>
+                            <h3 class="font-bold text-base sm:text-lg">DNS Resolver</h3>
                         </div>
                         <div id="resolverList" class="space-y-3">
                             <div class="flex items-center gap-3 text-slate-500">
@@ -101,13 +148,13 @@
                         </div>
                     </div>
 
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-network-wired text-purple-400"></i>
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
+                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-purple-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
+                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-network-wired text-purple-400 text-sm sm:text-base"></i>
                             </div>
-                            <h3 class="font-bold text-lg">ECS (EDNS Client Subnet)</h3>
+                            <h3 class="font-bold text-base sm:text-lg">ECS (EDNS Client Subnet)</h3>
                         </div>
                         <div id="ecsInfo" class="space-y-3">
                             <div class="flex items-center gap-3 text-slate-500">
@@ -122,79 +169,79 @@
         </div>
     </section>
 
-    <section id="creator" class="py-16 px-4">
+    <section id="creator" class="py-10 sm:py-16 px-4">
         <div class="max-w-xl mx-auto">
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-bold mb-3">Tạo Apple DNS Profile</h2>
-                <p class="text-slate-400">Nhập thông tin server DoH để tạo profile cài đặt</p>
+            <div class="text-center mb-6 sm:mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3">Tạo Apple DNS Profile</h2>
+                <p class="text-slate-400 text-sm">Nhập thông tin server DoH để tạo profile cài đặt</p>
             </div>
-            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 card-hover">
-                <form id="dnsForm" class="space-y-5">
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-5 sm:p-8 card-hover">
+                <form id="dnsForm" class="space-y-4 sm:space-y-5">
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Tên Profile</label>
-                        <input type="text" id="profileName" value="My Custom DNS" placeholder="VD: Cloudflare DNS" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500" required>
+                        <input type="text" id="profileName" value="My Custom DNS" placeholder="VD: Cloudflare DNS" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500 text-sm sm:text-base" required>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-300 mb-2">Server URL (DoH)</label>
-                        <input type="text" id="serverAddress" placeholder="https://dns.example.com/dns-query" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500" required>
+                        <input type="text" id="serverAddress" placeholder="https://dns.example.com/dns-query" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500 text-sm sm:text-base" required>
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base">
                         <i class="fas fa-download"></i> Tải Profile (.mobileconfig)
                     </button>
                 </form>
-                <p class="text-xs text-slate-500 mt-4 text-center">
+                <p class="text-xs text-slate-500 mt-3 sm:mt-4 text-center">
                     <i class="fas fa-info-circle"></i> Profile tương thích iOS 14+ & macOS Big Sur+
                 </p>
             </div>
         </div>
     </section>
 
-    <section id="providers" class="py-16 px-4">
+    <section id="providers" class="py-10 sm:py-16 px-4">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold mb-3">DNS Providers</h2>
-                <p class="text-slate-400 max-w-xl mx-auto">Chọn DNS Provider phù hợp. Nhấn vào để xem chi tiết và tải profile DoH</p>
+            <div class="text-center mb-8 sm:mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3">DNS Providers</h2>
+                <p class="text-slate-400 text-sm max-w-xl mx-auto">Chọn DNS Provider phù hợp. Nhấn vào để xem chi tiết và tải profile DoH</p>
             </div>
-            <div id="providerList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="providerList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"></div>
         </div>
     </section>
 
-    <section id="about" class="py-16 px-4 border-t border-slate-800">
+    <section id="about" class="py-10 sm:py-16 px-4 border-t border-slate-800">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl font-bold mb-6">Tại sao cần mã hóa DNS?</h2>
-            <div class="grid md:grid-cols-3 gap-8 mt-10">
-                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
-                    <div class="w-14 h-14 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-user-shield text-blue-400 text-2xl"></i>
+            <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Tại sao cần mã hóa DNS?</h2>
+            <div class="grid sm:grid-cols-3 gap-4 sm:gap-8 mt-6 sm:mt-10">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-4 sm:p-6 card-hover">
+                    <div class="w-11 h-11 sm:w-14 sm:h-14 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <i class="fas fa-user-shield text-blue-400 text-xl sm:text-2xl"></i>
                     </div>
-                    <h3 class="font-bold text-lg mb-2">Bảo mật riêng tư</h3>
-                    <p class="text-slate-400 text-sm">ISP không thể thấy bạn truy cập website nào</p>
+                    <h3 class="font-bold text-base sm:text-lg mb-1 sm:mb-2">Bảo mật riêng tư</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm">ISP không thể thấy bạn truy cập website nào</p>
                 </div>
-                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
-                    <div class="w-14 h-14 bg-green-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-ban text-green-400 text-2xl"></i>
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-4 sm:p-6 card-hover">
+                    <div class="w-11 h-11 sm:w-14 sm:h-14 bg-green-600/20 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <i class="fas fa-ban text-green-400 text-xl sm:text-2xl"></i>
                     </div>
-                    <h3 class="font-bold text-lg mb-2">Chặn quảng cáo</h3>
-                    <p class="text-slate-400 text-sm">Nhiều provider hỗ trợ chặn quảng cáo & tracking ở tầng DNS</p>
+                    <h3 class="font-bold text-base sm:text-lg mb-1 sm:mb-2">Chặn quảng cáo</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm">Nhiều provider hỗ trợ chặn quảng cáo & tracking ở tầng DNS</p>
                 </div>
-                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
-                    <div class="w-14 h-14 bg-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-bolt text-purple-400 text-2xl"></i>
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-4 sm:p-6 card-hover">
+                    <div class="w-11 h-11 sm:w-14 sm:h-14 bg-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <i class="fas fa-bolt text-purple-400 text-xl sm:text-2xl"></i>
                     </div>
-                    <h3 class="font-bold text-lg mb-2">Tốc độ</h3>
-                    <p class="text-slate-400 text-sm">DNS DoH/DoT thường nhanh hơn DNS mặc định của ISP</p>
+                    <h3 class="font-bold text-base sm:text-lg mb-1 sm:mb-2">Tốc độ</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm">DNS DoH/DoT thường nhanh hơn DNS mặc định của ISP</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="py-8 px-4 border-t border-slate-800 text-center text-slate-500 text-sm">
+    <footer class="py-6 sm:py-8 px-4 border-t border-slate-800 text-center text-slate-500 text-xs sm:text-sm">
         <p>Tổng Kho DNS &copy; 2026. Được tạo với <i class="fas fa-heart text-red-400"></i> bởi ducchung.com</p>
     </footer>
 
-    <div id="providerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+    <div id="providerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-4 sm:p-6 relative modal-scroll">
+            <button onclick="closeModal()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white text-lg sm:text-xl z-10">
                 <i class="fas fa-times"></i>
             </button>
             <div id="modalContent"></div>
@@ -318,22 +365,22 @@
         function renderProviders() {
             const container = document.getElementById('providerList');
             container.innerHTML = providers.map((p, i) => `
-                <div onclick="openModal(${i})" class="provider-card bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 cursor-pointer card-hover">
-                    <div class="flex items-start gap-4 mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="${p.icon} text-white text-xl"></i>
+                <div onclick="openModal(${i})" class="provider-card bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6 cursor-pointer card-hover">
+                    <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="${p.icon} text-white text-base sm:text-xl"></i>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-lg">${p.name}</h3>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-base sm:text-lg">${p.name}</h3>
                             <div class="flex flex-wrap gap-1 mt-1">
                                 ${p.tags.map(t => `<span class="tag ${p.tagColor} rounded-full font-medium">${t}</span>`).join('')}
                             </div>
                         </div>
                     </div>
-                    <p class="text-slate-400 text-sm mb-4 line-clamp-2">${p.description}</p>
+                    <p class="text-slate-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">${p.description}</p>
                     <div class="flex items-center justify-between text-xs text-slate-500">
-                        <span class="flex items-center gap-1"><i class="fas fa-link"></i> ${new URL(p.dohUrl).hostname}</span>
-                        <span class="text-blue-400 font-medium flex items-center gap-1">Xem chi tiết <i class="fas fa-arrow-right text-[10px]"></i></span>
+                        <span class="flex items-center gap-1 truncate"><i class="fas fa-link flex-shrink-0"></i> <span class="truncate">${new URL(p.dohUrl).hostname}</span></span>
+                        <span class="text-blue-400 font-medium flex items-center gap-1 flex-shrink-0 ml-2">Xem chi tiết <i class="fas fa-arrow-right text-[10px]"></i></span>
                     </div>
                 </div>
             `).join('');
@@ -348,51 +395,51 @@
             const dotFilename = p.name.replace(/\s+/g, '_') + '_DoT.mobileconfig';
 
             content.innerHTML = `
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-14 h-14 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center">
-                        <i class="${p.icon} text-white text-2xl"></i>
+                <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div class="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="${p.icon} text-white text-xl sm:text-2xl"></i>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-bold">${p.name}</h3>
+                    <div class="min-w-0">
+                        <h3 class="text-lg sm:text-2xl font-bold">${p.name}</h3>
                         <div class="flex flex-wrap gap-1 mt-1">
                             ${p.tags.map(t => `<span class="tag ${p.tagColor} rounded-full font-medium">${t}</span>`).join('')}
                         </div>
                     </div>
                 </div>
-                <p class="text-slate-300 mb-6">${p.description}</p>
+                <p class="text-slate-300 text-sm mb-4 sm:mb-6">${p.description}</p>
 
-                <div class="space-y-4 mb-6">
-                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">Tính năng</h4>
-                    <div class="grid grid-cols-2 gap-2">
-                        ${p.features.map(f => `<div class="flex items-center gap-2 text-sm"><i class="fas fa-check-circle text-green-400"></i> ${f}</div>`).join('')}
+                <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                    <h4 class="font-semibold text-xs sm:text-sm text-slate-400 uppercase tracking-wider">Tính năng</h4>
+                    <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        ${p.features.map(f => `<div class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm"><i class="fas fa-check-circle text-green-400 flex-shrink-0"></i> <span class="truncate">${f}</span></div>`).join('')}
                     </div>
                 </div>
 
-                <div class="space-y-4 mb-6">
-                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">DNS over HTTPS (DoH)</h4>
-                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
-                        <p class="text-xs text-slate-500 mb-2">Server URL</p>
-                        <p class="font-mono text-sm text-cyan-400 break-all">${p.dohUrl}</p>
+                <div class="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                    <h4 class="font-semibold text-xs sm:text-sm text-slate-400 uppercase tracking-wider">DNS over HTTPS (DoH)</h4>
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-3 sm:p-4">
+                        <p class="text-xs text-slate-500 mb-1 sm:mb-2">Server URL</p>
+                        <p class="font-mono text-xs sm:text-sm text-cyan-400 break-all">${p.dohUrl}</p>
                     </div>
-                    <button onclick="generateProviderProfile('${p.name}', '${p.dohUrl}', 'HTTPS')" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-download"></i> Tải Profile DoH (.mobileconfig)
+                    <button onclick="generateProviderProfile('${p.name}', '${p.dohUrl}', 'HTTPS')" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-download"></i> Tải Profile DoH
                     </button>
                 </div>
 
-                <div class="space-y-4">
-                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">DNS over TLS (DoT)</h4>
-                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
-                        <p class="text-xs text-slate-500 mb-2">Server Name (cấu hình trên Android Private DNS)</p>
-                        <p class="font-mono text-sm text-green-400">${p.dotServer}</p>
+                <div class="space-y-3 sm:space-y-4">
+                    <h4 class="font-semibold text-xs sm:text-sm text-slate-400 uppercase tracking-wider">DNS over TLS (DoT)</h4>
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-3 sm:p-4">
+                        <p class="text-xs text-slate-500 mb-1 sm:mb-2">Server Name (cấu hình trên Android Private DNS)</p>
+                        <p class="font-mono text-xs sm:text-sm text-green-400 break-all">${p.dotServer}</p>
                     </div>
-                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-3 sm:p-4">
                         <p class="text-xs text-slate-500 mb-1">Cách cài trên Android:</p>
-                        <p class="text-sm text-slate-300">Settings → Network → Private DNS → Nhập: <span class="font-mono text-green-400">${p.dotServer}</span></p>
+                        <p class="text-xs sm:text-sm text-slate-300">Settings → Network → Private DNS → Nhập: <span class="font-mono text-green-400 break-all">${p.dotServer}</span></p>
                     </div>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-700 flex items-center justify-between">
-                    <a href="${p.website}" target="_blank" class="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-slate-700 flex items-center justify-between">
+                    <a href="${p.website}" target="_blank" class="text-xs sm:text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
                         <i class="fas fa-external-link-alt"></i> Website chính thức
                     </a>
                 </div>
@@ -569,6 +616,37 @@
 
         renderProviders();
 
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const bar1 = document.getElementById('bar1');
+            const bar2 = document.getElementById('bar2');
+            const bar3 = document.getElementById('bar3');
+            menu.classList.toggle('active');
+            if (menu.classList.contains('active')) {
+                bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
+                bar2.style.opacity = '0';
+                bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
+                bar3.style.width = '1.25rem';
+            } else {
+                bar1.style.transform = '';
+                bar2.style.opacity = '';
+                bar3.style.transform = '';
+                bar3.style.width = '';
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const bar1 = document.getElementById('bar1');
+            const bar2 = document.getElementById('bar2');
+            const bar3 = document.getElementById('bar3');
+            menu.classList.remove('active');
+            bar1.style.transform = '';
+            bar2.style.opacity = '';
+            bar3.style.transform = '';
+            bar3.style.width = '';
+        }
+
         const knownDNSProviders = {
             '1.1.1.1': { name: 'Cloudflare', color: 'text-orange-400' },
             '1.0.0.1': { name: 'Cloudflare', color: 'text-orange-400' },
@@ -622,10 +700,10 @@
                 }
 
                 el.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv4</p>
-                        <p class="font-mono text-lg text-white">${ipv4 || 'Không khả dụng'}</p>
-                        ${org ? `<p class="text-xs text-slate-400 mt-2">${org}</p>` : ''}
+                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
+                        <p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider mb-1 sm:mb-2">IPv4</p>
+                        <p class="font-mono text-base sm:text-lg text-white break-all">${ipv4 || 'Không khả dụng'}</p>
+                        ${org ? `<p class="text-xs text-slate-400 mt-1.5 sm:mt-2 break-all">${org}</p>` : ''}
                         ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
                     </div>
                 `;
@@ -665,24 +743,24 @@
 
             if (ecsSubnet) {
                 ecsEl.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-                            <p class="text-sm text-green-400 font-medium">DNS resolver quảng bá IP subnet của bạn (ECS)</p>
+                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
+                        <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
+                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-400 flex-shrink-0"></span>
+                            <p class="text-xs sm:text-sm text-green-400 font-medium">DNS resolver quảng bá IP subnet của bạn (ECS)</p>
                         </div>
-                        <p class="text-xs text-slate-400 mt-2">Subnet được gửi:</p>
-                        <p class="font-mono text-sm text-purple-400 mt-1">${ecsSubnet}</p>
-                        <p class="text-xs text-slate-500 mt-2">Nhà cung cấp DNS đang chia sẻ subnet IP của bạn với các DNS authoritative server để cải thiện tốc độ phân giải.</p>
+                        <p class="text-[10px] sm:text-xs text-slate-400 mt-1.5 sm:mt-2">Subnet được gửi:</p>
+                        <p class="font-mono text-xs sm:text-sm text-purple-400 mt-0.5 sm:mt-1 break-all">${ecsSubnet}</p>
+                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">Nhà cung cấp DNS đang chia sẻ subnet IP của bạn với các DNS authoritative server để cải thiện tốc độ phân giải.</p>
                     </div>
                 `;
             } else {
                 ecsEl.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-                            <p class="text-sm text-yellow-400 font-medium">DNS resolver không quảng bá IP subnet (ECS)</p>
+                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
+                        <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
+                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-yellow-400 flex-shrink-0"></span>
+                            <p class="text-xs sm:text-sm text-yellow-400 font-medium">DNS resolver không quảng bá IP subnet (ECS)</p>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2">Nhà cung cấp DNS của bạn không gửi thông tin ECS. Điều này giúp bảo mật tốt hơn nhưng có thể ảnh hưởng tốc độ ở một số khu vực.</p>
+                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">Nhà cung cấp DNS của bạn không gửi thông tin ECS. Điều này giúp bảo mật tốt hơn nhưng có thể ảnh hưởng tốc độ ở một số khu vực.</p>
                     </div>
                 `;
             }
@@ -750,7 +828,7 @@
         function renderResolvers(container, resolvers) {
             const entries = Object.values(resolvers);
             if (entries.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-sm">Không tìm thấy resolver</p>';
+                container.innerHTML = '<p class="text-slate-400 text-xs sm:text-sm">Không tìm thấy resolver</p>';
                 return;
             }
 
@@ -765,17 +843,17 @@
             for (const [name, items] of Object.entries(grouped)) {
                 const firstInfo = items[0].info;
                 const color = firstInfo?.color || 'text-slate-300';
-                html += `<div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">`;
-                html += `<p class="font-bold ${color} mb-3">${name}</p>`;
+                html += `<div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">`;
+                html += `<p class="font-bold text-sm sm:text-base ${color} mb-2 sm:mb-3">${name}</p>`;
                 items.forEach(r => {
                     const loc = [r.city, r.country].filter(Boolean).join(', ');
                     html += `
-                        <div class="flex items-center justify-between py-2 border-t border-slate-700/50 first:border-0">
-                            <div class="flex items-center gap-3">
-                                <span class="w-2 h-2 rounded-full ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>
-                                <span class="font-mono text-sm text-slate-300">${r.ip}</span>
+                        <div class="flex items-center justify-between py-1.5 sm:py-2 border-t border-slate-700/50 first:border-0">
+                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                                <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>
+                                <span class="font-mono text-xs sm:text-sm text-slate-300 truncate">${r.ip}</span>
                             </div>
-                            ${loc ? `<span class="text-xs text-slate-500">${loc}</span>` : ''}
+                            ${loc ? `<span class="text-[10px] sm:text-xs text-slate-500 flex-shrink-0 ml-2">${loc}</span>` : ''}
                         </div>
                     `;
                 });
