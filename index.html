@@ -9,7 +9,7 @@
 <body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans p-4">
     <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-100">
         <h1 class="text-2xl font-bold mb-2 text-slate-800 text-center">Tạo Apple DNS Profile</h1>
-        <p class="text-sm text-slate-500 mb-8 text-center">Hỗ trợ Custom Domain (DoH/DoT) cho iOS & macOS</p>
+        <p class="text-sm text-slate-500 mb-8 text-center">Tạo Profile DNS over HTTPS (DoH) cho iOS & macOS</p>
         
         <form id="dnsForm" class="space-y-5">
             <div>
@@ -17,16 +17,10 @@
                 <input type="text" id="profileName" value="My Custom DNS" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
             </div>
             
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Giao thức</label>
-                <select id="protocol" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white">
-                    <option value="HTTPS">DNS over HTTPS (DoH)</option>
-                    <option value="TLS">DNS over TLS (DoT)</option>
-                </select>
-            </div>
+            <input type="hidden" id="protocol" value="HTTPS">
             
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1" id="serverLabel">Server URL (DoH)</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Server URL (DoH)</label>
                 <input type="text" id="serverAddress" placeholder="https://doh.domain.com/dns-query" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
             </div>
             
@@ -44,19 +38,14 @@
             });
         }
 
-        const protocolSelect = document.getElementById('protocol');
-        const serverLabel = document.getElementById('serverLabel');
-        const serverAddress = document.getElementById('serverAddress');
-
-        protocolSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'HTTPS') {
-                serverLabel.textContent = 'Server URL (DoH)';
-                serverAddress.placeholder = 'https://doh.domain.com/dns-query';
-            } else {
-                serverLabel.textContent = 'Server Name (DoT)';
-                serverAddress.placeholder = 'dot.domain.com';
-            }
-        });
+        function escapeXml(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        }
 
         document.getElementById('dnsForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -64,17 +53,20 @@
             const name = document.getElementById('profileName').value;
             const protocol = document.getElementById('protocol').value;
             const address = document.getElementById('serverAddress').value;
+
+            if (!address.startsWith('https://')) {
+                alert('Server URL phải bắt đầu bằng https://');
+                return;
+            }
             
             const payloadUUID = uuidv4();
             const profileUUID = uuidv4();
             const identifier = 'com.customdns.' + Date.now();
-            
-            let serverConfig = '';
-            if (protocol === 'HTTPS') {
-                serverConfig = `<key>ServerURL</key>\n\t\t\t\t<string>${address}</string>`;
-            } else {
-                serverConfig = `<key>ServerName</key>\n\t\t\t\t<string>${address}</string>`;
-            }
+            const safeName = escapeXml(name);
+            const safeAddress = escapeXml(address);
+
+            const serverConfig = `<key>ServerURL</key>
+                    <string>${safeAddress}</string>`;
 
             const mobileconfig = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -90,7 +82,7 @@
                 ${serverConfig}
             </dict>
             <key>PayloadDisplayName</key>
-            <string>${name}</string>
+            <string>${safeName}</string>
             <key>PayloadIdentifier</key>
             <string>${identifier}.settings</string>
             <key>PayloadType</key>
@@ -104,7 +96,7 @@
     <key>PayloadDescription</key>
     <string>Cấu hình Custom Encrypted DNS cho máy</string>
     <key>PayloadDisplayName</key>
-    <string>${name}</string>
+    <string>${safeName}</string>
     <key>PayloadIdentifier</key>
     <string>${identifier}</string>
     <key>PayloadOrganization</key>
@@ -115,6 +107,11 @@
     <string>${profileUUID}</string>
     <key>PayloadVersion</key>
     <integer>1</integer>
+    <key>ConsentText</key>
+    <dict>
+        <key>default</key>
+        <string>Profile này sẽ cấu hình DNS over HTTPS (DoH) cho thiết bị của bạn. Mọi truy cập DNS sẽ được mã hóa qua giao thức HTTPS.</string>
+    </dict>
 </dict>
 </plist>`;
 
