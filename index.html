@@ -65,54 +65,88 @@
             <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-bold mb-2">Kiểm tra DNS</h2>
-                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
+                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS</p>
                 </div>
 
-                <div id="dnsLoading" class="text-center py-8">
-                    <div class="inline-flex items-center gap-3 bg-slate-900/50 border border-slate-600 rounded-xl px-6 py-4">
-                        <div class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                        <span class="text-slate-300">Đang quét...</span>
+                <div id="dnsLoading" class="text-center py-12">
+                    <div class="inline-flex flex-col items-center gap-4">
+                        <div class="relative">
+                            <div class="animate-spin w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-radar text-blue-400 text-sm animate-pulse"></i>
+                            </div>
+                        </div>
+                        <p class="text-slate-400">Đang quét DNS của bạn...</p>
                     </div>
                 </div>
 
-                <div id="dnsResults" class="hidden space-y-6">
-                    <div id="ipSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <i class="fas fa-globe text-blue-400"></i> Địa chỉ IP
-                        </h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs text-slate-500 mb-1">IPv4</p>
-                                <p class="font-mono text-lg text-white" id="ipv4">Đang kiểm tra...</p>
+                <div id="dnsResults" class="hidden space-y-4">
+                    <div id="ipSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16"></div>
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-globe text-blue-400"></i>
                             </div>
-                            <div>
-                                <p class="text-xs text-slate-500 mb-1">IPv6</p>
-                                <p class="font-mono text-lg text-white" id="ipv6">Đang kiểm tra...</p>
+                            <h3 class="font-bold text-lg">Địa chỉ IP</h3>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                                    <p class="text-xs text-slate-500 uppercase tracking-wider">IPv4</p>
+                                </div>
+                                <p class="font-mono text-xl text-white" id="ipv4">...</p>
+                            </div>
+                            <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                                    <p class="text-xs text-slate-500 uppercase tracking-wider">IPv6</p>
+                                </div>
+                                <p class="font-mono text-xl text-white truncate" id="ipv6">...</p>
                             </div>
                         </div>
                     </div>
 
-                    <div id="resolverSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <i class="fas fa-server text-green-400"></i> DNS Resolver
-                        </h3>
+                    <div id="resolverSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16"></div>
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-server text-green-400"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">DNS Resolver</h3>
+                        </div>
                         <div id="resolverList" class="space-y-3">
-                            <p class="text-slate-400 text-sm">Đang phát hiện...</p>
+                            <div class="flex items-center gap-3 text-slate-500">
+                                <div class="animate-pulse w-8 h-8 bg-slate-700 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="animate-pulse h-4 bg-slate-700 rounded w-32 mb-1"></div>
+                                    <div class="animate-pulse h-3 bg-slate-700 rounded w-48"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="dnssecSection" class="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <i class="fas fa-shield-halved text-purple-400"></i> DNSSEC
-                        </h3>
+                    <div id="dnssecSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shield-halved text-purple-400"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">DNSSEC</h3>
+                        </div>
                         <div id="dnssecStatus" class="flex items-center gap-3">
-                            <div class="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
-                            <span class="text-slate-400 text-sm">Đang kiểm tra DNSSEC...</span>
+                            <div class="animate-pulse flex items-center gap-3">
+                                <div class="w-8 h-8 bg-slate-700 rounded-lg"></div>
+                                <div>
+                                    <div class="animate-pulse h-4 bg-slate-700 rounded w-40 mb-1"></div>
+                                    <div class="animate-pulse h-3 bg-slate-700 rounded w-56"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <p class="text-xs text-slate-500 mt-6 text-center">* Sử dụng dnscheck.tools để phát hiện DNS resolver thực tế</p>
+                <p class="text-xs text-slate-600 mt-6 text-center">Powered by <a href="https://dnscheck.tools" target="_blank" class="text-blue-400 hover:text-blue-300">dnscheck.tools</a></p>
             </div>
         </div>
     </section>
@@ -705,15 +739,17 @@
             container.innerHTML = entries.map(r => {
                 const info = r.info;
                 const name = info.name || r.org || 'Resolver khác';
+                const isIPv6 = r.ip.includes(':');
                 return `
-                    <div class="flex items-center gap-4 bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${info.color ? info.color.replace('text-', '').replace('text', '') : 'bg-slate-700'}">
+                    <div class="flex items-center gap-4 bg-slate-900/50 border border-slate-700/50 rounded-xl p-4">
+                        <div class="w-10 h-10 ${isIPv6 ? 'bg-purple-500/20' : 'bg-green-500/20'} rounded-xl flex items-center justify-center flex-shrink-0">
                             <i class="${info.icon} ${info.color || 'text-slate-400'}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="font-bold ${info.color || 'text-white'}">${name}</p>
-                            <p class="font-mono text-sm text-slate-400">${r.ip}</p>
+                            <p class="font-mono text-sm text-slate-400 truncate">${r.ip}</p>
                         </div>
+                        <span class="px-2 py-1 text-xs rounded-full ${isIPv6 ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}">${isIPv6 ? 'IPv6' : 'IPv4'}</span>
                     </div>
                 `;
             }).join('');
