@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Apple DNS Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-100">
+        <h1 class="text-2xl font-bold mb-2 text-slate-800 text-center">Tạo Apple DNS Profile</h1>
+        <p class="text-sm text-slate-500 mb-8 text-center">Hỗ trợ Custom Domain (DoH/DoT) cho iOS & macOS</p>
+        
+        <form id="dnsForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Tên Profile</label>
+                <input type="text" id="profileName" value="My Custom DNS" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Giao thức</label>
+                <select id="protocol" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white">
+                    <option value="HTTPS">DNS over HTTPS (DoH)</option>
+                    <option value="TLS">DNS over TLS (DoT)</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1" id="serverLabel">Server URL (DoH)</label>
+                <input type="text" id="serverAddress" placeholder="https://doh.domain.com/dns-query" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200 mt-4">
+                Tải Profile (.mobileconfig)
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        const protocolSelect = document.getElementById('protocol');
+        const serverLabel = document.getElementById('serverLabel');
+        const serverAddress = document.getElementById('serverAddress');
+
+        protocolSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'HTTPS') {
+                serverLabel.textContent = 'Server URL (DoH)';
+                serverAddress.placeholder = 'https://doh.domain.com/dns-query';
+            } else {
+                serverLabel.textContent = 'Server Name (DoT)';
+                serverAddress.placeholder = 'dot.domain.com';
+            }
+        });
+
+        document.getElementById('dnsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('profileName').value;
+            const protocol = document.getElementById('protocol').value;
+            const address = document.getElementById('serverAddress').value;
+            
+            const payloadUUID = uuidv4();
+            const profileUUID = uuidv4();
+            const identifier = 'com.customdns.' + Date.now();
+            
+            let serverConfig = '';
+            if (protocol === 'HTTPS') {
+                serverConfig = `<key>ServerURL</key>\n\t\t\t\t<string>${address}</string>`;
+            } else {
+                serverConfig = `<key>ServerName</key>\n\t\t\t\t<string>${address}</string>`;
+            }
+
+            const mobileconfig = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>DNSSettings</key>
+            <dict>
+                <key>DNSProtocol</key>
+                <string>${protocol}</string>
+                ${serverConfig}
+            </dict>
+            <key>PayloadDisplayName</key>
+            <string>${name}</string>
+            <key>PayloadIdentifier</key>
+            <string>${identifier}.settings</string>
+            <key>PayloadType</key>
+            <string>com.apple.dnsSettings.managed</string>
+            <key>PayloadUUID</key>
+            <string>${payloadUUID}</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>Cấu hình Custom Encrypted DNS cho máy</string>
+    <key>PayloadDisplayName</key>
+    <string>${name}</string>
+    <key>PayloadIdentifier</key>
+    <string>${identifier}</string>
+    <key>PayloadOrganization</key>
+    <string>Custom DNS Builder</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>${profileUUID}</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>`;
+
+            const blob = new Blob([mobileconfig], { type: 'application/x-apple-aspen-config' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name.replace(/\s+/g, '_')}.mobileconfig`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
