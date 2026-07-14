@@ -542,7 +542,18 @@
         function identifyResolver(ip) {
             if (knownDNSProviders[ip]) return knownDNSProviders[ip];
             if (ip.includes(':')) return { name: 'IPv6 Resolver', icon: 'fas fa-network-wired', color: 'text-purple-400' };
-            return { name: 'Resolver khác', icon: 'fas fa-server', color: 'text-slate-400' };
+            return { name: null, icon: 'fas fa-server', color: 'text-slate-400' };
+        }
+
+        async function lookupIPInfo(ip) {
+            try {
+                const res = await fetch(`https://ipinfo.io/${ip}/json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.org ? data.org.replace(/^AS\d+\s+/, '') : null;
+                }
+            } catch (e) {}
+            return null;
         }
 
         async function detectCurrentDNS() {
@@ -597,13 +608,17 @@
 
         function showResult(container, resolverIP) {
             const info = identifyResolver(resolverIP);
+            const displayName = info.name || 'Resolver khác';
+            const displayIcon = info.icon;
+            const displayColor = info.color;
+
             container.innerHTML = `
                 <div class="mb-6">
                     <div class="inline-flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-4">
-                        <i class="${info.icon} ${info.color} text-2xl"></i>
+                        <i class="${displayIcon} ${displayColor} text-2xl"></i>
                         <div class="text-left">
                             <p class="text-xs text-slate-400">DNS Resolver của bạn</p>
-                            <p class="text-xl font-bold ${info.color}">${info.name}</p>
+                            <p class="text-xl font-bold ${displayColor}" id="resolverName">${displayName}</p>
                         </div>
                     </div>
                 </div>
@@ -611,8 +626,17 @@
                     <p class="text-xs text-slate-500 mb-1">Resolver IP</p>
                     <p class="font-mono text-lg text-white">${resolverIP}</p>
                 </div>
+                <div id="resolverOrg" class="mt-2 text-xs text-slate-500"></div>
                 <p class="text-xs text-slate-500 mt-4">* Phát hiện qua DNS query thực tế đến dnscheck.tools</p>
             `;
+
+            if (!info.name) {
+                lookupIPInfo(resolverIP).then(org => {
+                    if (org) {
+                        document.getElementById('resolverOrg').textContent = `Tổ chức: ${org}`;
+                    }
+                });
+            }
         }
 
         function showFallback(container) {
