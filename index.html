@@ -105,7 +105,7 @@
             <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6">
                 <div class="flex items-center gap-2 sm:gap-3 mb-4">
                     <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-radar text-blue-400 text-sm"></i>
+                        <i class="fas fa-diagnoses text-blue-400 text-sm"></i>
                     </div>
                     <h2 class="text-base sm:text-lg font-bold">Kiểm tra DNS</h2>
                     <span id="dnsStatus" class="ml-auto text-[10px] sm:text-xs text-slate-500 flex items-center gap-1.5">
@@ -117,21 +117,20 @@
                 <div id="dnsResults" class="space-y-3">
                     <div id="ipRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
                         <span class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
-                        <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">IPv4</span>
+                        <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">IP</span>
                         <span id="ipValue" class="font-mono text-xs sm:text-sm text-white truncate"></span>
                         <span id="ipOrg" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block"></span>
                         <span id="ipLoc" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto sm:hidden"></span>
                     </div>
 
-                    <div id="resolverRow" class="hidden space-y-2">
-                        <div id="resolverList"></div>
+                    <div id="resolverRow" class="hidden">
+                        <div id="resolverList" class="space-y-2"></div>
                     </div>
 
                     <div id="ecsRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
                         <span id="ecsDot" class="w-2 h-2 rounded-full flex-shrink-0"></span>
-                        <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
+                        <span id="ecsLabel" class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
                         <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
-                        <span id="ecsNote" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block"></span>
                     </div>
                 </div>
             </div>
@@ -673,20 +672,18 @@
         function renderECSInline(subnet) {
             const row = document.getElementById('ecsRow');
             const dot = document.getElementById('ecsDot');
+            const label = document.getElementById('ecsLabel');
             const val = document.getElementById('ecsValue');
-            const note = document.getElementById('ecsNote');
             if (subnet) {
                 dot.className = 'w-2 h-2 rounded-full bg-green-400 flex-shrink-0';
+                label.className = 'text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0';
                 val.textContent = subnet;
                 val.className = 'font-mono text-xs sm:text-sm text-green-400 truncate';
-                note.textContent = 'Có ECS';
-                note.className = 'text-[10px] sm:text-xs text-green-400 truncate ml-auto hidden sm:block';
             } else {
-                dot.className = 'w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0';
-                val.textContent = 'Không có ECS';
-                val.className = 'text-xs sm:text-sm text-yellow-400 truncate';
-                note.textContent = 'Bảo mật cao hơn';
-                note.className = 'text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block';
+                dot.className = 'w-2 h-2 rounded-full bg-red-400 flex-shrink-0';
+                label.className = 'text-[10px] sm:text-xs text-red-400 w-10 flex-shrink-0 font-medium';
+                val.textContent = 'Không có';
+                val.className = 'text-xs sm:text-sm text-slate-500 truncate';
             }
             row.classList.remove('hidden');
         }
@@ -772,14 +769,14 @@
             let html = '';
             for (const [name, items] of Object.entries(grouped)) {
                 const color = items[0].info?.color || 'text-slate-300';
-                html += `<div class="bg-slate-900/50 rounded-xl px-3 py-2 border border-slate-700/50">`;
-                html += `<p class="font-bold text-xs sm:text-sm ${color} mb-1">${name}</p>`;
+                html += `<div class="bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">`;
+                html += `<p class="font-bold text-xs sm:text-sm ${color} mb-1.5">${name}</p>`;
                 items.forEach(r => {
                     const loc = [r.city, r.country].filter(Boolean).join(', ');
-                    html += `<div class="flex items-center justify-between py-0.5">`;
-                    html += `<div class="flex items-center gap-1.5 min-w-0">`;
+                    html += `<div class="flex items-center justify-between py-1 border-t border-slate-700/30 first:border-0">`;
+                    html += `<div class="flex items-center gap-2 min-w-0">`;
                     html += `<span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>`;
-                    html += `<span class="font-mono text-[10px] sm:text-xs text-slate-300 truncate">${r.ip}</span>`;
+                    html += `<span class="font-mono text-[10px] sm:text-xs text-slate-300">${r.ip}</span>`;
                     html += `</div>`;
                     if (loc) html += `<span class="text-[9px] sm:text-[10px] text-slate-500 flex-shrink-0 ml-2">${loc}</span>`;
                     html += `</div>`;
