@@ -100,71 +100,40 @@
         </div>
     </header>
 
-    <section id="detection" class="py-8 sm:py-12 px-4">
+    <section id="detection" class="py-6 sm:py-10 px-4">
         <div class="max-w-4xl mx-auto">
-            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
-                <div class="text-center mb-6 sm:mb-8">
-                    <h2 class="text-xl sm:text-2xl font-bold mb-2">Kiểm tra DNS</h2>
-                    <p class="text-slate-400 text-xs sm:text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6">
+                <div class="flex items-center gap-2 sm:gap-3 mb-4">
+                    <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-radar text-blue-400 text-sm"></i>
+                    </div>
+                    <h2 class="text-base sm:text-lg font-bold">Kiểm tra DNS</h2>
+                    <span id="dnsStatus" class="ml-auto text-[10px] sm:text-xs text-slate-500 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                        Đang quét...
+                    </span>
                 </div>
 
-                <div id="dnsLoading" class="text-center py-8 sm:py-12">
-                    <div class="inline-flex flex-col items-center gap-3 sm:gap-4">
-                        <div class="relative">
-                            <div class="animate-spin w-10 h-10 sm:w-12 sm:h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
-                        </div>
-                        <p class="text-slate-400 text-sm">Đang quét DNS của bạn...</p>
+                <div id="dnsResults" class="space-y-3">
+                    <div id="ipRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
+                        <span class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
+                        <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">IPv4</span>
+                        <span id="ipValue" class="font-mono text-xs sm:text-sm text-white truncate"></span>
+                        <span id="ipOrg" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block"></span>
+                        <span id="ipLoc" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto sm:hidden"></span>
+                    </div>
+
+                    <div id="resolverRow" class="hidden space-y-2">
+                        <div id="resolverList"></div>
+                    </div>
+
+                    <div id="ecsRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
+                        <span id="ecsDot" class="w-2 h-2 rounded-full flex-shrink-0"></span>
+                        <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
+                        <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
+                        <span id="ecsNote" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block"></span>
                     </div>
                 </div>
-
-                <div id="dnsResults" class="hidden space-y-3 sm:space-y-4">
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
-                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-blue-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
-                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
-                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-globe text-blue-400 text-sm sm:text-base"></i>
-                            </div>
-                            <h3 class="font-bold text-base sm:text-lg">Địa chỉ IP của bạn</h3>
-                        </div>
-                        <div id="ipInfo" class="space-y-3">
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <div class="animate-pulse h-4 bg-slate-700 rounded w-64"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
-                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-green-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
-                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
-                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-server text-green-400 text-sm sm:text-base"></i>
-                            </div>
-                            <h3 class="font-bold text-base sm:text-lg">DNS Resolver</h3>
-                        </div>
-                        <div id="resolverList" class="space-y-3">
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <div class="animate-pulse h-4 bg-slate-700 rounded w-48"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-4 sm:p-6">
-                        <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-purple-500/5 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16"></div>
-                        <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
-                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-network-wired text-purple-400 text-sm sm:text-base"></i>
-                            </div>
-                            <h3 class="font-bold text-base sm:text-lg">ECS (EDNS Client Subnet)</h3>
-                        </div>
-                        <div id="ecsInfo" class="space-y-3">
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <div class="animate-pulse h-4 bg-slate-700 rounded w-64"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
             </div>
         </div>
     </section>
@@ -672,20 +641,11 @@
 
         async function detectAll() {
             const clientId = Math.floor(Math.random() * 0xffffffff).toString(16);
-            document.getElementById('dnsLoading').classList.remove('hidden');
-            document.getElementById('dnsResults').classList.add('hidden');
-
             detectIPInfo();
-            const { resolvers, clientSubnet } = await detectResolvers(clientId);
-
-            renderECS(clientSubnet);
-
-            document.getElementById('dnsLoading').classList.add('hidden');
-            document.getElementById('dnsResults').classList.remove('hidden');
+            detectResolvers(clientId);
         }
 
         async function detectIPInfo() {
-            const el = document.getElementById('ipInfo');
             try {
                 const v4Res = await fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null);
                 const ipv4 = v4Res ? v4Res.trim() : null;
@@ -700,117 +660,107 @@
                     }
                 }
 
-                el.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
-                        <p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider mb-1 sm:mb-2">IPv4</p>
-                        <p class="font-mono text-base sm:text-lg text-white break-all">${ipv4 || 'Không khả dụng'}</p>
-                        ${org ? `<p class="text-xs text-slate-400 mt-1.5 sm:mt-2 break-all">${org}</p>` : ''}
-                        ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
-                    </div>
-                `;
-            } catch (e) {
-                el.innerHTML = '<p class="text-red-400">Lỗi khi detect IP</p>';
-            }
+                const ipRow = document.getElementById('ipRow');
+                document.getElementById('ipValue').textContent = ipv4 || 'N/A';
+                document.getElementById('ipOrg').textContent = org;
+                document.getElementById('ipOrg').classList.toggle('hidden', !org);
+                document.getElementById('ipLoc').textContent = [city, country].filter(Boolean).join(', ') || '';
+                document.getElementById('ipLoc').classList.toggle('hidden', !city);
+                ipRow.classList.remove('hidden');
+            } catch (e) {}
         }
 
-        function renderECS(subnet) {
-            const ecsEl = document.getElementById('ecsInfo');
+        function renderECSInline(subnet) {
+            const row = document.getElementById('ecsRow');
+            const dot = document.getElementById('ecsDot');
+            const val = document.getElementById('ecsValue');
+            const note = document.getElementById('ecsNote');
             if (subnet) {
-                ecsEl.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
-                        <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
-                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-400 flex-shrink-0"></span>
-                            <p class="text-xs sm:text-sm text-green-400 font-medium">DNS resolver quảng bá IP subnet của bạn (ECS)</p>
-                        </div>
-                        <p class="text-[10px] sm:text-xs text-slate-400 mt-1.5 sm:mt-2">Subnet được gửi:</p>
-                        <p class="font-mono text-xs sm:text-sm text-purple-400 mt-0.5 sm:mt-1 break-all">${subnet}</p>
-                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">Nhà cung cấp DNS đang chia sẻ subnet IP của bạn với các DNS authoritative server để cải thiện tốc độ phân giải.</p>
-                    </div>
-                `;
+                dot.className = 'w-2 h-2 rounded-full bg-green-400 flex-shrink-0';
+                val.textContent = subnet;
+                val.className = 'font-mono text-xs sm:text-sm text-green-400 truncate';
+                note.textContent = 'Có ECS';
+                note.className = 'text-[10px] sm:text-xs text-green-400 truncate ml-auto hidden sm:block';
             } else {
-                ecsEl.innerHTML = `
-                    <div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">
-                        <div class="flex items-center gap-2 mb-1.5 sm:mb-2">
-                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-yellow-400 flex-shrink-0"></span>
-                            <p class="text-xs sm:text-sm text-yellow-400 font-medium">DNS resolver không quảng bá IP subnet (ECS)</p>
-                        </div>
-                        <p class="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2 leading-relaxed">Nhà cung cấp DNS của bạn không gửi thông tin ECS. Điều này giúp bảo mật tốt hơn nhưng có thể ảnh hưởng tốc độ ở một số khu vực.</p>
-                    </div>
-                `;
+                dot.className = 'w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0';
+                val.textContent = 'Không có ECS';
+                val.className = 'text-xs sm:text-sm text-yellow-400 truncate';
+                note.textContent = 'Bảo mật cao hơn';
+                note.className = 'text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block';
             }
+            row.classList.remove('hidden');
         }
 
         async function detectResolvers(clientId) {
             const container = document.getElementById('resolverList');
             const resolvers = {};
             let clientSubnet = null;
+            let resolved = false;
 
-            return new Promise((resolve) => {
-                try {
-                    const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
-                    const timeout = setTimeout(() => {
-                        socket.close();
-                        renderResolvers(container, resolvers);
-                        resolve({ resolvers, clientSubnet });
-                    }, 8000);
+            const finishResolve = () => {
+                if (resolved) return;
+                resolved = true;
+                document.getElementById('dnsStatus').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Hoàn tất';
+                renderECSInline(clientSubnet);
+            };
 
-                    socket.addEventListener('message', async ({ data }) => {
-                        const request = JSON.parse(data);
-                        const ip = request.remoteIp;
+            setTimeout(finishResolve, 5000);
 
-                        if (request.clientSubnet && !request.clientSubnet.endsWith('/0') && !clientSubnet) {
-                            clientSubnet = request.clientSubnet;
+            try {
+                const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
+
+                socket.addEventListener('message', async ({ data }) => {
+                    const request = JSON.parse(data);
+                    const ip = request.remoteIp;
+
+                    if (request.clientSubnet && !request.clientSubnet.endsWith('/0') && !clientSubnet) {
+                        clientSubnet = request.clientSubnet;
+                        renderECSInline(clientSubnet);
+                    }
+
+                    if (ip && !resolvers[ip]) {
+                        resolvers[ip] = { ip, proto: request.proto, info: null, org: null, city: null, country: null };
+
+                        const known = knownDNSProviders[ip];
+                        if (known) {
+                            resolvers[ip].info = known;
+                        } else {
+                            lookupIPInfo(ip).then(info => {
+                                if (info) {
+                                    resolvers[ip].org = info.org || null;
+                                    resolvers[ip].city = info.city || null;
+                                    resolvers[ip].country = info.country || null;
+                                    resolvers[ip].info = { name: (info.org || '').replace(/^AS\d+\s+/, '') || 'Resolver', color: 'text-slate-300' };
+                                } else {
+                                    resolvers[ip].info = { name: 'Resolver', color: 'text-slate-400' };
+                                }
+                                renderResolversCompact(container, resolvers);
+                            });
+                            resolvers[ip].info = { name: '...', color: 'text-slate-500' };
                         }
 
-                        if (ip && !resolvers[ip]) {
-                            resolvers[ip] = { ip, proto: request.proto, info: null, org: null, city: null, country: null, ns: null };
+                        document.getElementById('resolverRow').classList.remove('hidden');
+                        renderResolversCompact(container, resolvers);
+                    }
+                });
 
-                            const info = await lookupIPInfo(ip);
-                            if (info) {
-                                resolvers[ip].org = info.org || null;
-                                resolvers[ip].city = info.city || null;
-                                resolvers[ip].country = info.country || null;
-                            }
+                socket.addEventListener('open', async () => {
+                    for (let i = 0; i < 4; i++) {
+                        try {
+                            await fetch(`https://${String.fromCharCode(97 + i)}.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                        } catch (e) {}
+                    }
+                });
 
-                            const known = knownDNSProviders[ip];
-                            if (known) {
-                                resolvers[ip].info = known;
-                            } else if (resolvers[ip].org) {
-                                resolvers[ip].info = { name: resolvers[ip].org.replace(/^AS\d+\s+/, ''), color: 'text-slate-300' };
-                            } else {
-                                resolvers[ip].info = { name: 'Resolver khác', color: 'text-slate-400' };
-                            }
-
-                            renderResolvers(container, resolvers);
-                        }
-                    });
-
-                    socket.addEventListener('open', async () => {
-                        for (let i = 0; i < 4; i++) {
-                            try {
-                                await fetch(`https://${String.fromCharCode(97 + i)}.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
-                            } catch (e) {}
-                        }
-                    });
-
-                    socket.addEventListener('error', () => {
-                        clearTimeout(timeout);
-                        container.innerHTML = '<p class="text-slate-400 text-sm">Lỗi kết nối WebSocket</p>';
-                        resolve({ resolvers, clientSubnet });
-                    });
-                } catch (e) {
-                    container.innerHTML = '<p class="text-slate-400 text-sm">Không thể quét</p>';
-                    resolve({ resolvers, clientSubnet });
-                }
-            });
+                socket.addEventListener('error', finishResolve);
+            } catch (e) {
+                finishResolve();
+            }
         }
 
-        function renderResolvers(container, resolvers) {
+        function renderResolversCompact(container, resolvers) {
             const entries = Object.values(resolvers);
-            if (entries.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-xs sm:text-sm">Không tìm thấy resolver</p>';
-                return;
-            }
+            if (!entries.length) return;
 
             const grouped = {};
             entries.forEach(r => {
@@ -821,25 +771,21 @@
 
             let html = '';
             for (const [name, items] of Object.entries(grouped)) {
-                const firstInfo = items[0].info;
-                const color = firstInfo?.color || 'text-slate-300';
-                html += `<div class="bg-slate-900/50 rounded-xl p-3 sm:p-4 border border-slate-700/50">`;
-                html += `<p class="font-bold text-sm sm:text-base ${color} mb-2 sm:mb-3">${name}</p>`;
+                const color = items[0].info?.color || 'text-slate-300';
+                html += `<div class="bg-slate-900/50 rounded-xl px-3 py-2 border border-slate-700/50">`;
+                html += `<p class="font-bold text-xs sm:text-sm ${color} mb-1">${name}</p>`;
                 items.forEach(r => {
                     const loc = [r.city, r.country].filter(Boolean).join(', ');
-                    html += `
-                        <div class="flex items-center justify-between py-1.5 sm:py-2 border-t border-slate-700/50 first:border-0">
-                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                                <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>
-                                <span class="font-mono text-xs sm:text-sm text-slate-300 truncate">${r.ip}</span>
-                            </div>
-                            ${loc ? `<span class="text-[10px] sm:text-xs text-slate-500 flex-shrink-0 ml-2">${loc}</span>` : ''}
-                        </div>
-                    `;
+                    html += `<div class="flex items-center justify-between py-0.5">`;
+                    html += `<div class="flex items-center gap-1.5 min-w-0">`;
+                    html += `<span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>`;
+                    html += `<span class="font-mono text-[10px] sm:text-xs text-slate-300 truncate">${r.ip}</span>`;
+                    html += `</div>`;
+                    if (loc) html += `<span class="text-[9px] sm:text-[10px] text-slate-500 flex-shrink-0 ml-2">${loc}</span>`;
+                    html += `</div>`;
                 });
                 html += `</div>`;
             }
-
             container.innerHTML = html;
         }
 
