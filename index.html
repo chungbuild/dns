@@ -65,49 +65,35 @@
             <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-bold mb-2">Kiểm tra DNS</h2>
-                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS</p>
+                    <p class="text-slate-400 text-sm">Phát hiện IP, DNS Resolver và bảo mật DNS của bạn</p>
                 </div>
 
                 <div id="dnsLoading" class="text-center py-12">
                     <div class="inline-flex flex-col items-center gap-4">
                         <div class="relative">
                             <div class="animate-spin w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-radar text-blue-400 text-sm animate-pulse"></i>
-                            </div>
                         </div>
                         <p class="text-slate-400">Đang quét DNS của bạn...</p>
                     </div>
                 </div>
 
                 <div id="dnsResults" class="hidden space-y-4">
-                    <div id="ipSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -mr-16 -mt-16"></div>
                         <div class="flex items-center gap-3 mb-5">
                             <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-globe text-blue-400"></i>
                             </div>
-                            <h3 class="font-bold text-lg">Địa chỉ IP</h3>
+                            <h3 class="font-bold text-lg">Địa chỉ IP của bạn</h3>
                         </div>
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                                    <p class="text-xs text-slate-500 uppercase tracking-wider">IPv4</p>
-                                </div>
-                                <p class="font-mono text-xl text-white" id="ipv4">...</p>
-                            </div>
-                            <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-                                    <p class="text-xs text-slate-500 uppercase tracking-wider">IPv6</p>
-                                </div>
-                                <p class="font-mono text-xl text-white truncate" id="ipv6">...</p>
+                        <div id="ipInfo" class="space-y-3">
+                            <div class="flex items-center gap-3 text-slate-500">
+                                <div class="animate-pulse h-4 bg-slate-700 rounded w-64"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="resolverSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16"></div>
                         <div class="flex items-center gap-3 mb-5">
                             <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
@@ -117,30 +103,22 @@
                         </div>
                         <div id="resolverList" class="space-y-3">
                             <div class="flex items-center gap-3 text-slate-500">
-                                <div class="animate-pulse w-8 h-8 bg-slate-700 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="animate-pulse h-4 bg-slate-700 rounded w-32 mb-1"></div>
-                                    <div class="animate-pulse h-3 bg-slate-700 rounded w-48"></div>
-                                </div>
+                                <div class="animate-pulse h-4 bg-slate-700 rounded w-48"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="dnssecSection" class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
                         <div class="flex items-center gap-3 mb-5">
                             <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-shield-halved text-purple-400"></i>
                             </div>
-                            <h3 class="font-bold text-lg">DNSSEC</h3>
+                            <h3 class="font-bold text-lg">Bảo mật DNS (DNSSEC)</h3>
                         </div>
-                        <div id="dnssecStatus" class="flex items-center gap-3">
-                            <div class="animate-pulse flex items-center gap-3">
-                                <div class="w-8 h-8 bg-slate-700 rounded-lg"></div>
-                                <div>
-                                    <div class="animate-pulse h-4 bg-slate-700 rounded w-40 mb-1"></div>
-                                    <div class="animate-pulse h-3 bg-slate-700 rounded w-56"></div>
-                                </div>
+                        <div id="dnssecStatus">
+                            <div class="flex items-center gap-3 text-slate-500">
+                                <div class="animate-pulse h-4 bg-slate-700 rounded w-48"></div>
                             </div>
                         </div>
                     </div>
@@ -599,78 +577,78 @@
         renderProviders();
 
         const knownDNSProviders = {
-            '1.1.1.1': { name: 'Cloudflare', icon: 'fas fa-cloud', color: 'text-orange-400' },
-            '1.0.0.1': { name: 'Cloudflare', icon: 'fas fa-cloud', color: 'text-orange-400' },
-            '8.8.8.8': { name: 'Google DNS', icon: 'fab fa-google', color: 'text-blue-400' },
-            '8.8.4.4': { name: 'Google DNS', icon: 'fab fa-google', color: 'text-blue-400' },
-            '9.9.9.9': { name: 'Quad9', icon: 'fas fa-hashtag', color: 'text-pink-400' },
-            '149.112.112.112': { name: 'Quad9', icon: 'fas fa-hashtag', color: 'text-pink-400' },
-            '94.140.14.14': { name: 'AdGuard DNS', icon: 'fas fa-shield-halved', color: 'text-red-400' },
-            '94.140.15.15': { name: 'AdGuard DNS', icon: 'fas fa-shield-halved', color: 'text-red-400' },
-            '45.90.28.0': { name: 'NextDNS', icon: 'fas fa-cog', color: 'text-cyan-400' },
-            '45.90.30.0': { name: 'NextDNS', icon: 'fas fa-cog', color: 'text-cyan-400' },
-            '208.67.222.222': { name: 'OpenDNS', icon: 'fas fa-globe', color: 'text-teal-400' },
-            '208.67.220.220': { name: 'OpenDNS', icon: 'fas fa-globe', color: 'text-teal-400' },
+            '1.1.1.1': { name: 'Cloudflare', color: 'text-orange-400' },
+            '1.0.0.1': { name: 'Cloudflare', color: 'text-orange-400' },
+            '8.8.8.8': { name: 'Google DNS', color: 'text-blue-400' },
+            '8.8.4.4': { name: 'Google DNS', color: 'text-blue-400' },
+            '9.9.9.9': { name: 'Quad9', color: 'text-pink-400' },
+            '149.112.112.112': { name: 'Quad9', color: 'text-pink-400' },
+            '94.140.14.14': { name: 'AdGuard DNS', color: 'text-red-400' },
+            '94.140.15.15': { name: 'AdGuard DNS', color: 'text-red-400' },
+            '45.90.28.0': { name: 'NextDNS', color: 'text-cyan-400' },
+            '45.90.30.0': { name: 'NextDNS', color: 'text-cyan-400' },
+            '208.67.222.222': { name: 'OpenDNS', color: 'text-teal-400' },
+            '208.67.220.220': { name: 'OpenDNS', color: 'text-teal-400' },
         };
-
-        function identifyResolver(ip) {
-            if (knownDNSProviders[ip]) return knownDNSProviders[ip];
-            if (ip.includes(':')) return { name: null, icon: 'fas fa-network-wired', color: 'text-purple-400' };
-            return { name: null, icon: 'fas fa-server', color: 'text-slate-400' };
-        }
 
         async function lookupIPInfo(ip) {
             try {
                 const res = await fetch(`https://ipinfo.io/${ip}/json`);
-                if (res.ok) {
-                    const data = await res.json();
-                    return { org: data.org || null, city: data.city || null, country: data.country || null };
-                }
+                if (res.ok) return await res.json();
             } catch (e) {}
             return null;
         }
 
         async function detectAll() {
             const clientId = Math.floor(Math.random() * 0xffffffff).toString(16);
-
             document.getElementById('dnsLoading').classList.remove('hidden');
             document.getElementById('dnsResults').classList.add('hidden');
 
-            detectIPv4();
-            detectIPv6();
-
+            detectIPInfo();
             const resolvers = await detectResolvers(clientId);
-            detectDNSSEC(clientId);
+            await detectDNSSEC(clientId);
+
+            document.getElementById('dnsLoading').classList.add('hidden');
+            document.getElementById('dnsResults').classList.remove('hidden');
         }
 
-        async function detectIPv4() {
-            const el = document.getElementById('ipv4');
+        async function detectIPInfo() {
+            const el = document.getElementById('ipInfo');
             try {
-                const res = await fetch('https://myipv4.addr.tools/plain');
-                const ip = (await res.text()).trim();
-                el.textContent = ip;
-                el.classList.add('text-green-400');
-            } catch (e) {
-                el.textContent = 'Không thể phát hiện';
-                el.classList.add('text-red-400');
-            }
-        }
+                const [v4Res, v6Res] = await Promise.all([
+                    fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null),
+                    fetch('https://myipv6.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null)
+                ]);
 
-        async function detectIPv6() {
-            const el = document.getElementById('ipv6');
-            try {
-                const res = await fetch('https://myipv6.addr.tools/plain');
-                const ip = (await res.text()).trim();
-                if (ip && ip.includes(':')) {
-                    el.textContent = ip;
-                    el.classList.add('text-green-400');
-                } else {
-                    el.textContent = 'Không khả dụng';
-                    el.classList.add('text-slate-500');
+                const ipv4 = v4Res ? v4Res.trim() : null;
+                const ipv6 = v6Res && v6Res.trim().includes(':') ? v6Res.trim() : null;
+
+                let org = '', city = '', country = '';
+                if (ipv4) {
+                    const info = await lookupIPInfo(ipv4);
+                    if (info) {
+                        org = info.org || '';
+                        city = info.city || '';
+                        country = info.country || '';
+                    }
                 }
+
+                el.innerHTML = `
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv4</p>
+                            <p class="font-mono text-lg text-white">${ipv4 || 'Không khả dụng'}</p>
+                            ${org ? `<p class="text-xs text-slate-400 mt-2">${org}</p>` : ''}
+                            ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
+                        </div>
+                        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv6</p>
+                            <p class="font-mono text-lg text-white truncate">${ipv6 || 'Không khả dụng'}</p>
+                        </div>
+                    </div>
+                `;
             } catch (e) {
-                el.textContent = 'Không khả dụng';
-                el.classList.add('text-slate-500');
+                el.innerHTML = '<p class="text-red-400">Lỗi khi detect IP</p>';
             }
         }
 
@@ -681,14 +659,9 @@
             return new Promise((resolve) => {
                 try {
                     const socket = new WebSocket(`wss://ws.dnscheck.tools/watch/${clientId}`);
-
                     const timeout = setTimeout(() => {
                         socket.close();
-                        if (Object.keys(resolvers).length === 0) {
-                            container.innerHTML = '<p class="text-slate-400 text-sm">Không thể phát hiện resolver</p>';
-                        }
-                        document.getElementById('dnsLoading').classList.add('hidden');
-                        document.getElementById('dnsResults').classList.remove('hidden');
+                        renderResolvers(container, resolvers);
                         resolve(resolvers);
                     }, 8000);
 
@@ -696,17 +669,30 @@
                         const request = JSON.parse(data);
                         const ip = request.remoteIp;
                         if (ip && !resolvers[ip]) {
-                            resolvers[ip] = { ip, info: identifyResolver(ip), org: null };
+                            resolvers[ip] = { ip, proto: request.proto, info: null, org: null, city: null, country: null, ns: null };
 
-                            const orgData = await lookupIPInfo(ip);
-                            if (orgData) resolvers[ip].org = orgData.org;
+                            const info = await lookupIPInfo(ip);
+                            if (info) {
+                                resolvers[ip].org = info.org || null;
+                                resolvers[ip].city = info.city || null;
+                                resolvers[ip].country = info.country || null;
+                            }
+
+                            const known = knownDNSProviders[ip];
+                            if (known) {
+                                resolvers[ip].info = known;
+                            } else if (resolvers[ip].org) {
+                                resolvers[ip].info = { name: resolvers[ip].org.replace(/^AS\d+\s+/, ''), color: 'text-slate-300' };
+                            } else {
+                                resolvers[ip].info = { name: 'Resolver khác', color: 'text-slate-400' };
+                            }
 
                             renderResolvers(container, resolvers);
                         }
                     });
 
                     socket.addEventListener('open', async () => {
-                        for (let i = 0; i < 3; i++) {
+                        for (let i = 0; i < 4; i++) {
                             try {
                                 await fetch(`https://${String.fromCharCode(97 + i)}.nullip-${clientId}.test.dnscheck.tools/`, { mode: 'no-cors' });
                             } catch (e) {}
@@ -715,15 +701,11 @@
 
                     socket.addEventListener('error', () => {
                         clearTimeout(timeout);
-                        container.innerHTML = '<p class="text-slate-400 text-sm">Lỗi kết nối</p>';
-                        document.getElementById('dnsLoading').classList.add('hidden');
-                        document.getElementById('dnsResults').classList.remove('hidden');
+                        container.innerHTML = '<p class="text-slate-400 text-sm">Lỗi kết nối WebSocket</p>';
                         resolve(resolvers);
                     });
                 } catch (e) {
                     container.innerHTML = '<p class="text-slate-400 text-sm">Không thể quét</p>';
-                    document.getElementById('dnsLoading').classList.add('hidden');
-                    document.getElementById('dnsResults').classList.remove('hidden');
                     resolve(resolvers);
                 }
             });
@@ -732,57 +714,98 @@
         function renderResolvers(container, resolvers) {
             const entries = Object.values(resolvers);
             if (entries.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-sm">Đang phát hiện...</p>';
+                container.innerHTML = '<p class="text-slate-400 text-sm">Không tìm thấy resolver</p>';
                 return;
             }
 
-            container.innerHTML = entries.map(r => {
-                const info = r.info;
-                const name = info.name || r.org || 'Resolver khác';
-                const isIPv6 = r.ip.includes(':');
-                return `
-                    <div class="flex items-center gap-4 bg-slate-900/50 border border-slate-700/50 rounded-xl p-4">
-                        <div class="w-10 h-10 ${isIPv6 ? 'bg-purple-500/20' : 'bg-green-500/20'} rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="${info.icon} ${info.color || 'text-slate-400'}"></i>
+            const grouped = {};
+            entries.forEach(r => {
+                const key = r.info?.name || 'Unknown';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(r);
+            });
+
+            let html = '';
+            for (const [name, items] of Object.entries(grouped)) {
+                const firstInfo = items[0].info;
+                const color = firstInfo?.color || 'text-slate-300';
+                html += `<div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">`;
+                html += `<p class="font-bold ${color} mb-3">${name}</p>`;
+                items.forEach(r => {
+                    const loc = [r.city, r.country].filter(Boolean).join(', ');
+                    html += `
+                        <div class="flex items-center justify-between py-2 border-t border-slate-700/50 first:border-0">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2 h-2 rounded-full ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>
+                                <span class="font-mono text-sm text-slate-300">${r.ip}</span>
+                            </div>
+                            ${loc ? `<span class="text-xs text-slate-500">${loc}</span>` : ''}
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-bold ${info.color || 'text-white'}">${name}</p>
-                            <p class="font-mono text-sm text-slate-400 truncate">${r.ip}</p>
-                        </div>
-                        <span class="px-2 py-1 text-xs rounded-full ${isIPv6 ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}">${isIPv6 ? 'IPv6' : 'IPv4'}</span>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
         }
 
         async function detectDNSSEC(clientId) {
             const el = document.getElementById('dnssecStatus');
-            try {
-                const res = await fetch(`https://goodsig-${clientId}.test-alg13.dnscheck.tools/`, { mode: 'no-cors' });
-                el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check text-green-400"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-green-400">DNSSEC hợp lệ</p>
-                            <p class="text-xs text-slate-500">Resolver của bạn xác thực DNSSEC đúng cách</p>
-                        </div>
-                    </div>
-                `;
-            } catch (e) {
-                el.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-exclamation text-yellow-400"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-yellow-400">DNSSEC không hợp lệ hoặc không hỗ trợ</p>
-                            <p class="text-xs text-slate-500">Resolver của bạn có thể không xác thực DNSSEC</p>
-                        </div>
-                    </div>
-                `;
+            const algos = [
+                { name: 'ECDSA P-256', id: 'alg13' },
+                { name: 'ECDSA P-384', id: 'alg14' },
+                { name: 'Ed25519', id: 'alg15' },
+            ];
+            const sigTypes = [
+                { name: 'Valid', prefix: '' },
+                { name: 'Invalid', prefix: 'badsig-' },
+                { name: 'Expired', prefix: 'expiredsig-' },
+                { name: 'Missing', prefix: 'nosig-' },
+            ];
+
+            const results = {};
+
+            for (const algo of algos) {
+                results[algo.id] = {};
+                for (const sig of sigTypes) {
+                    try {
+                        const res = await fetch(`https://${sig.prefix}${clientId}.test-${algo.id}.dnscheck.tools/`, { mode: 'no-cors', signal: AbortSignal.timeout(5000) });
+                        results[algo.id][sig.name] = true;
+                    } catch (e) {
+                        results[algo.id][sig.name] = false;
+                    }
+                }
             }
+
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="text-left py-2 text-slate-500"></th>
+                                ${algos.map(a => `<th class="text-center py-2 text-slate-400">${a.name}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sigTypes.map(sig => `
+                                <tr class="border-b border-slate-700/50">
+                                    <td class="py-2 text-slate-400">${sig.name} signature</td>
+                                    ${algos.map(a => {
+                                        const pass = results[a.id][sig.name];
+                                        return `<td class="text-center py-2">
+                                            <span class="px-2 py-1 rounded-full text-xs font-bold ${pass ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+                                                ${pass ? 'PASS' : 'FAIL'}
+                                            </span>
+                                        </td>`;
+                                    }).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            el.innerHTML = html;
         }
 
         detectAll();
