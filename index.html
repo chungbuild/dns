@@ -125,8 +125,9 @@
                         <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
                     </div>
 
-                    <div id="resolverRow" class="hidden">
-                        <div class="flex items-center gap-2 mb-1.5 px-1">
+                    <div id="resolverRow" class="hidden bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
                             <span class="text-[10px] sm:text-xs text-slate-400 font-medium">DNS Resolvers</span>
                         </div>
                         <div id="resolverList" class="space-y-2"></div>
@@ -688,12 +689,15 @@
             const resolvers = {};
             let clientSubnet = null;
             let resolved = false;
+            let ecsLocFetched = false;
 
             const finishResolve = () => {
                 if (resolved) return;
                 resolved = true;
                 document.getElementById('dnsStatus').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Hoàn tất';
-                renderECSInline(clientSubnet, '');
+                if (!ecsLocFetched) {
+                    renderECSInline(clientSubnet, '');
+                }
             };
 
             setTimeout(finishResolve, 5000);
@@ -708,11 +712,12 @@
                     if (request.clientSubnet && !request.clientSubnet.endsWith('/0') && !clientSubnet) {
                         clientSubnet = request.clientSubnet;
                         const ipBase = clientSubnet.split('/')[0];
+                        renderECSInline(clientSubnet, '');
                         lookupIPInfo(ipBase).then(info => {
+                            ecsLocFetched = true;
                             const loc = info ? [info.city, info.country].filter(Boolean).join(', ') : '';
                             renderECSInline(clientSubnet, loc);
                         });
-                        renderECSInline(clientSubnet, '');
                     }
 
                     if (ip && !resolvers[ip]) {
@@ -769,11 +774,11 @@
             let html = '';
             for (const [name, items] of Object.entries(grouped)) {
                 const color = items[0].info?.color || 'text-slate-300';
-                html += `<div class="bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">`;
-                html += `<p class="font-bold text-xs sm:text-sm ${color} mb-1.5">${name}</p>`;
+                html += `<div class="bg-slate-800/50 rounded-lg px-3 py-2 border border-slate-700/30">`;
+                html += `<p class="font-bold text-xs sm:text-sm ${color} mb-1">${name}</p>`;
                 items.forEach(r => {
                     const loc = [r.city, r.country].filter(Boolean).join(', ');
-                    html += `<div class="flex items-center justify-between py-1 border-t border-slate-700/30 first:border-0">`;
+                    html += `<div class="flex items-center justify-between py-0.5">`;
                     html += `<div class="flex items-center gap-2 min-w-0">`;
                     html += `<span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>`;
                     html += `<span class="font-mono text-[10px] sm:text-xs text-slate-300">${r.ip}</span>`;
