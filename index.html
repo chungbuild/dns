@@ -104,9 +104,6 @@
         <div class="max-w-4xl mx-auto">
             <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6">
                 <div class="flex items-center gap-2 sm:gap-3 mb-4">
-                    <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-diagnoses text-blue-400 text-sm"></i>
-                    </div>
                     <h2 class="text-base sm:text-lg font-bold">Kiểm tra DNS</h2>
                     <span id="dnsStatus" class="ml-auto text-[10px] sm:text-xs text-slate-500 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
@@ -119,8 +116,13 @@
                         <span class="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
                         <span class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">IP</span>
                         <span id="ipValue" class="font-mono text-xs sm:text-sm text-white truncate"></span>
-                        <span id="ipOrg" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto hidden sm:block"></span>
-                        <span id="ipLoc" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto sm:hidden"></span>
+                        <span id="ipLoc" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto"></span>
+                    </div>
+
+                    <div id="ecsRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
+                        <span id="ecsDot" class="w-2 h-2 rounded-full flex-shrink-0"></span>
+                        <span id="ecsLabel" class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
+                        <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
                     </div>
 
                     <div id="resolverRow" class="hidden">
@@ -128,12 +130,6 @@
                             <span class="text-[10px] sm:text-xs text-slate-400 font-medium">DNS Resolvers</span>
                         </div>
                         <div id="resolverList" class="space-y-2"></div>
-                    </div>
-
-                    <div id="ecsRow" class="hidden flex items-center gap-3 bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
-                        <span id="ecsDot" class="w-2 h-2 rounded-full flex-shrink-0"></span>
-                        <span id="ecsLabel" class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
-                        <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
                     </div>
                 </div>
             </div>
@@ -652,11 +648,10 @@
                 const v4Res = await fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null);
                 const ipv4 = v4Res ? v4Res.trim() : null;
 
-                let org = '', city = '', country = '';
+                let city = '', country = '';
                 if (ipv4) {
                     const info = await lookupIPInfo(ipv4);
                     if (info) {
-                        org = info.org || '';
                         city = info.city || '';
                         country = info.country || '';
                     }
@@ -664,15 +659,12 @@
 
                 const ipRow = document.getElementById('ipRow');
                 document.getElementById('ipValue').textContent = ipv4 || 'N/A';
-                document.getElementById('ipOrg').textContent = org;
-                document.getElementById('ipOrg').classList.toggle('hidden', !org);
                 document.getElementById('ipLoc').textContent = [city, country].filter(Boolean).join(', ') || '';
-                document.getElementById('ipLoc').classList.toggle('hidden', !city);
                 ipRow.classList.remove('hidden');
             } catch (e) {}
         }
 
-        function renderECSInline(subnet) {
+        function renderECSInline(subnet, loc) {
             const row = document.getElementById('ecsRow');
             const dot = document.getElementById('ecsDot');
             const label = document.getElementById('ecsLabel');
@@ -680,8 +672,8 @@
             if (subnet) {
                 dot.className = 'w-2 h-2 rounded-full bg-green-400 flex-shrink-0';
                 label.className = 'text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0';
-                val.textContent = subnet;
-                val.className = 'font-mono text-xs sm:text-sm text-green-400 truncate';
+                val.innerHTML = `<span class="text-green-400">${subnet}</span>${loc ? ` <span class="text-slate-500 ml-2">${loc}</span>` : ''}`;
+                val.className = 'font-mono text-xs sm:text-sm truncate';
             } else {
                 dot.className = 'w-2 h-2 rounded-full bg-red-400 flex-shrink-0';
                 label.className = 'text-[10px] sm:text-xs text-red-400 w-10 flex-shrink-0 font-medium';
@@ -701,7 +693,7 @@
                 if (resolved) return;
                 resolved = true;
                 document.getElementById('dnsStatus').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Hoàn tất';
-                renderECSInline(clientSubnet);
+                renderECSInline(clientSubnet, '');
             };
 
             setTimeout(finishResolve, 5000);
@@ -715,7 +707,12 @@
 
                     if (request.clientSubnet && !request.clientSubnet.endsWith('/0') && !clientSubnet) {
                         clientSubnet = request.clientSubnet;
-                        renderECSInline(clientSubnet);
+                        const ipBase = clientSubnet.split('/')[0];
+                        lookupIPInfo(ipBase).then(info => {
+                            const loc = info ? [info.city, info.country].filter(Boolean).join(', ') : '';
+                            renderECSInline(clientSubnet, loc);
+                        });
+                        renderECSInline(clientSubnet, '');
                     }
 
                     if (ip && !resolvers[ip]) {
