@@ -83,21 +83,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-shield-halved text-purple-400"></i>
-                            </div>
-                            <h3 class="font-bold text-lg">Bảo mật DNS (DNSSEC)</h3>
-                        </div>
-                        <div id="dnssecStatus">
-                            <div class="flex items-center gap-3 text-slate-500">
-                                <div class="animate-pulse h-4 bg-slate-700 rounded w-48"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <p class="text-xs text-slate-600 mt-6 text-center">Powered by <a href="https://dnscheck.tools" target="_blank" class="text-blue-400 hover:text-blue-300">dnscheck.tools</a></p>
@@ -582,7 +567,6 @@
 
             detectIPInfo();
             const resolvers = await detectResolvers(clientId);
-            await detectDNSSEC(clientId);
 
             document.getElementById('dnsLoading').classList.add('hidden');
             document.getElementById('dnsResults').classList.remove('hidden');
@@ -591,13 +575,8 @@
         async function detectIPInfo() {
             const el = document.getElementById('ipInfo');
             try {
-                const [v4Res, v6Res] = await Promise.all([
-                    fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null),
-                    fetch('https://myipv6.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null)
-                ]);
-
+                const v4Res = await fetch('https://myipv4.addr.tools/plain').then(r => r.ok ? r.text() : null).catch(() => null);
                 const ipv4 = v4Res ? v4Res.trim() : null;
-                const ipv6 = v6Res && v6Res.trim().includes(':') ? v6Res.trim() : null;
 
                 let org = '', city = '', country = '';
                 if (ipv4) {
@@ -609,18 +588,18 @@
                     }
                 }
 
+                let ecsInfo = '';
+                try {
+                    const ecsRes = await fetch(`https://ecs-${Date.now()}.test.dnscheck.tools/`, { mode: 'no-cors' });
+                    ecsInfo = 'Đã detect';
+                } catch (e) {}
+
                 el.innerHTML = `
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv4</p>
-                            <p class="font-mono text-lg text-white">${ipv4 || 'Không khả dụng'}</p>
-                            ${org ? `<p class="text-xs text-slate-400 mt-2">${org}</p>` : ''}
-                            ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
-                        </div>
-                        <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
-                            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv6</p>
-                            <p class="font-mono text-lg text-white truncate">${ipv6 || 'Không khả dụng'}</p>
-                        </div>
+                    <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">IPv4</p>
+                        <p class="font-mono text-lg text-white">${ipv4 || 'Không khả dụng'}</p>
+                        ${org ? `<p class="text-xs text-slate-400 mt-2">${org}</p>` : ''}
+                        ${city ? `<p class="text-xs text-slate-500">${city}, ${country}</p>` : ''}
                     </div>
                 `;
             } catch (e) {
@@ -723,65 +702,6 @@
             }
 
             container.innerHTML = html;
-        }
-
-        async function detectDNSSEC(clientId) {
-            const el = document.getElementById('dnssecStatus');
-            const algos = [
-                { name: 'ECDSA P-256', id: 'alg13' },
-                { name: 'ECDSA P-384', id: 'alg14' },
-                { name: 'Ed25519', id: 'alg15' },
-            ];
-            const sigTypes = [
-                { name: 'Valid', prefix: '' },
-                { name: 'Invalid', prefix: 'badsig-' },
-                { name: 'Expired', prefix: 'expiredsig-' },
-                { name: 'Missing', prefix: 'nosig-' },
-            ];
-
-            const results = {};
-
-            for (const algo of algos) {
-                results[algo.id] = {};
-                for (const sig of sigTypes) {
-                    try {
-                        const res = await fetch(`https://${sig.prefix}${clientId}.test-${algo.id}.dnscheck.tools/`, { mode: 'no-cors', signal: AbortSignal.timeout(5000) });
-                        results[algo.id][sig.name] = true;
-                    } catch (e) {
-                        results[algo.id][sig.name] = false;
-                    }
-                }
-            }
-
-            let html = `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-slate-700">
-                                <th class="text-left py-2 text-slate-500"></th>
-                                ${algos.map(a => `<th class="text-center py-2 text-slate-400">${a.name}</th>`).join('')}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${sigTypes.map(sig => `
-                                <tr class="border-b border-slate-700/50">
-                                    <td class="py-2 text-slate-400">${sig.name} signature</td>
-                                    ${algos.map(a => {
-                                        const pass = results[a.id][sig.name];
-                                        return `<td class="text-center py-2">
-                                            <span class="px-2 py-1 rounded-full text-xs font-bold ${pass ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
-                                                ${pass ? 'PASS' : 'FAIL'}
-                                            </span>
-                                        </td>`;
-                                    }).join('')}
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            el.innerHTML = html;
         }
 
         detectAll();
