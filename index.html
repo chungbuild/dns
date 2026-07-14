@@ -336,8 +336,8 @@
             container.innerHTML = providers.map((p, i) => `
                 <div onclick="openModal(${i})" class="provider-card bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6 cursor-pointer card-hover">
                     <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
-                            <img src="${p.logo}" alt="${p.name}" class="w-6 h-6 sm:w-7 sm:h-7 object-contain" onerror="this.style.display='none'">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900/80 border border-slate-700/50">
+                            <img src="${p.logo}" alt="${p.name}" class="w-6 h-6 sm:w-7 sm:h-7 object-contain" style="filter:none">
                         </div>
                         <div class="min-w-0">
                             <h3 class="font-bold text-base sm:text-lg">${p.name}</h3>
@@ -365,8 +365,8 @@
 
             content.innerHTML = `
                 <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    <div class="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
-                        <img src="${p.logo}" alt="${p.name}" class="w-7 h-7 sm:w-9 sm:h-9 object-contain" onerror="this.style.display='none'">
+                    <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-900/80 border border-slate-700/50">
+                        <img src="${p.logo}" alt="${p.name}" class="w-7 h-7 sm:w-9 sm:h-9 object-contain" style="filter:none">
                     </div>
                     <div class="min-w-0">
                         <h3 class="text-lg sm:text-2xl font-bold">${p.name}</h3>
