@@ -223,7 +223,7 @@
         const providers = [
             {
                 name: "AdGuard DNS",
-                icon: "fas fa-shield-halved",
+                logo: "https://cdn.simpleicons.org/adguard/67B279",
                 color: "from-red-500 to-red-700",
                 tagColor: "bg-red-500/20 text-red-300",
                 tags: ["Chặn quảng cáo", "Privacy"],
@@ -235,7 +235,7 @@
             },
             {
                 name: "Quad9",
-                icon: "fas fa-hashtag",
+                logo: "https://cdn.simpleicons.org/quad9/E23D28",
                 color: "from-pink-500 to-purple-700",
                 tagColor: "bg-pink-500/20 text-pink-300",
                 tags: ["Bảo mật", "Non-profit"],
@@ -247,7 +247,7 @@
             },
             {
                 name: "Cloudflare",
-                icon: "fas fa-cloud",
+                logo: "https://cdn.simpleicons.org/cloudflare/F38020",
                 color: "from-orange-500 to-amber-600",
                 tagColor: "bg-orange-500/20 text-orange-300",
                 tags: ["Nhanh nhất", "Privacy"],
@@ -259,7 +259,7 @@
             },
             {
                 name: "Google DNS",
-                icon: "fab fa-google",
+                logo: "https://cdn.simpleicons.org/google/4285F4",
                 color: "from-blue-500 to-blue-700",
                 tagColor: "bg-blue-500/20 text-blue-300",
                 tags: ["Ổn định", "Rộng khắp"],
@@ -271,7 +271,7 @@
             },
             {
                 name: "NextDNS",
-                icon: "fas fa-cog",
+                logo: "https://cdn.simpleicons.org/nextdns/006BFF",
                 color: "from-cyan-500 to-blue-600",
                 tagColor: "bg-cyan-500/20 text-cyan-300",
                 tags: ["Tùy biến", "Chặn ads"],
@@ -283,7 +283,7 @@
             },
             {
                 name: "OpenDNS",
-                icon: "fas fa-globe",
+                logo: "https://cdn.simpleicons.org/opendns/009BDB",
                 color: "from-teal-500 to-green-600",
                 tagColor: "bg-teal-500/20 text-teal-300",
                 tags: ["Family", "Bảo mật"],
@@ -295,7 +295,7 @@
             },
             {
                 name: "Mullvad DNS",
-                icon: "fas fa-mask",
+                logo: "https://cdn.simpleicons.org/mullvad/294D6B",
                 color: "from-indigo-500 to-purple-600",
                 tagColor: "bg-indigo-500/20 text-indigo-300",
                 tags: ["Privacy", "Không ads"],
@@ -307,7 +307,7 @@
             },
             {
                 name: "CleanBrowsing",
-                icon: "fas fa-broom",
+                logo: "https://cdn.simpleicons.org/cleanbrowsing/17BF63",
                 color: "from-emerald-500 to-green-600",
                 tagColor: "bg-emerald-500/20 text-emerald-300",
                 tags: ["Family", "An toàn"],
@@ -319,7 +319,7 @@
             },
             {
                 name: "Comodo Secure DNS",
-                icon: "fas fa-lock",
+                logo: "https://cdn.simpleicons.org/comodo/1C3F5E",
                 color: "from-yellow-500 to-orange-600",
                 tagColor: "bg-yellow-500/20 text-yellow-300",
                 tags: ["Bảo mật", "Enterprise"],
@@ -337,7 +337,7 @@
                 <div onclick="openModal(${i})" class="provider-card bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-4 sm:p-6 cursor-pointer card-hover">
                     <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="${p.icon} text-white text-base sm:text-xl"></i>
+                            <img src="${p.logo}" alt="${p.name}" class="w-6 h-6 sm:w-7 sm:h-7 object-contain" onerror="this.style.display='none'">
                         </div>
                         <div class="min-w-0">
                             <h3 class="font-bold text-base sm:text-lg">${p.name}</h3>
@@ -366,7 +366,7 @@
             content.innerHTML = `
                 <div class="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div class="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
-                        <i class="${p.icon} text-white text-xl sm:text-2xl"></i>
+                        <img src="${p.logo}" alt="${p.name}" class="w-7 h-7 sm:w-9 sm:h-9 object-contain" onerror="this.style.display='none'">
                     </div>
                     <div class="min-w-0">
                         <h3 class="text-lg sm:text-2xl font-bold">${p.name}</h3>
