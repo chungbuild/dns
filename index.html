@@ -123,6 +123,7 @@
                         <span id="ecsDot" class="w-2 h-2 rounded-full flex-shrink-0"></span>
                         <span id="ecsLabel" class="text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0">ECS</span>
                         <span id="ecsValue" class="font-mono text-xs sm:text-sm truncate"></span>
+                        <span id="ecsLoc" class="text-[10px] sm:text-xs text-slate-500 truncate ml-auto"></span>
                     </div>
 
                     <div id="resolverRow" class="hidden bg-slate-900/50 rounded-xl px-3 py-2.5 border border-slate-700/50">
@@ -670,16 +671,19 @@
             const dot = document.getElementById('ecsDot');
             const label = document.getElementById('ecsLabel');
             const val = document.getElementById('ecsValue');
+            const locEl = document.getElementById('ecsLoc');
             if (subnet) {
                 dot.className = 'w-2 h-2 rounded-full bg-green-400 flex-shrink-0';
                 label.className = 'text-[10px] sm:text-xs text-slate-500 w-10 flex-shrink-0';
-                val.innerHTML = `<span class="text-green-400">${subnet}</span>${loc ? ` <span class="text-slate-500 ml-2">${loc}</span>` : ''}`;
-                val.className = 'font-mono text-xs sm:text-sm truncate';
+                val.textContent = subnet;
+                val.className = 'font-mono text-xs sm:text-sm text-green-400 truncate';
+                locEl.textContent = loc || '';
             } else {
                 dot.className = 'w-2 h-2 rounded-full bg-red-400 flex-shrink-0';
                 label.className = 'text-[10px] sm:text-xs text-red-400 w-10 flex-shrink-0 font-medium';
                 val.textContent = 'Không có';
                 val.className = 'text-xs sm:text-sm text-slate-500 truncate';
+                locEl.textContent = '';
             }
             row.classList.remove('hidden');
         }
@@ -779,10 +783,7 @@
                 items.forEach(r => {
                     const loc = [r.city, r.country].filter(Boolean).join(', ');
                     html += `<div class="flex items-center justify-between py-0.5">`;
-                    html += `<div class="flex items-center gap-2 min-w-0">`;
-                    html += `<span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${r.ip.includes(':') ? 'bg-purple-400' : 'bg-green-400'}"></span>`;
                     html += `<span class="font-mono text-[10px] sm:text-xs text-slate-300">${r.ip}</span>`;
-                    html += `</div>`;
                     if (loc) html += `<span class="text-[9px] sm:text-[10px] text-slate-500 flex-shrink-0 ml-2">${loc}</span>`;
                     html += `</div>`;
                 });
