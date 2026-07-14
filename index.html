@@ -3,70 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo Apple DNS Profile</title>
+    <title>DNS Security Hub - Apple DNS Profile & Providers</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .glow { box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
+        .provider-card { transition: all 0.3s ease; }
+        .provider-card:hover { transform: scale(1.02); }
+        .tag { font-size: 0.65rem; padding: 2px 6px; }
+    </style>
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans p-4">
-    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-100">
-        <h1 class="text-2xl font-bold mb-2 text-slate-800 text-center">Tạo Apple DNS Profile</h1>
-        <p class="text-sm text-slate-500 mb-8 text-center">Tạo Profile DNS over HTTPS (DoH) cho iOS & macOS</p>
-        
-        <form id="dnsForm" class="space-y-5">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Tên Profile</label>
-                <input type="text" id="profileName" value="My Custom DNS" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+<body class="gradient-bg min-h-screen text-white">
+    <nav class="border-b border-slate-700/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shield-halved text-white"></i>
+                </div>
+                <span class="text-xl font-bold">DNS Security Hub</span>
             </div>
-            
-            <input type="hidden" id="protocol" value="HTTPS">
-            
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Server URL (DoH)</label>
-                <input type="text" id="serverAddress" placeholder="https://doh.domain.com/dns-query" class="block w-full border border-slate-300 rounded-lg shadow-sm p-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+            <div class="flex items-center gap-6 text-sm text-slate-300">
+                <a href="#creator" class="hover:text-white transition-colors">Tạo Profile</a>
+                <a href="#providers" class="hover:text-white transition-colors">DNS Providers</a>
+                <a href="#about" class="hover:text-white transition-colors">Giới thiệu</a>
             </div>
-            
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200 mt-4">
-                Tải Profile (.mobileconfig)
+        </div>
+    </nav>
+
+    <header class="py-20 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-4 py-2 mb-6">
+                <i class="fas fa-lock text-blue-400 text-sm"></i>
+                <span class="text-blue-300 text-sm font-medium">Mã hóa DNS流量 cho iOS & macOS</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+                Bảo mật DNS<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">cho thiết bị Apple</span>
+            </h1>
+            <p class="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+                Tạo profile DNS over HTTPS (DoH) tùy chỉnh hoặc chọn từ các DNS Provider uy tín hàng đầu thế giới
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#creator" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i> Tạo Profile DNS
+                </a>
+                <a href="#providers" class="bg-slate-700 hover:bg-slate-600 px-8 py-3 rounded-xl font-semibold transition-all flex items-center gap-2">
+                    <i class="fas fa-globe"></i> Xem DNS Providers
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="creator" class="py-16 px-4">
+        <div class="max-w-xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-3">Tạo Apple DNS Profile</h2>
+                <p class="text-slate-400">Nhập thông tin server DoH để tạo profile cài đặt</p>
+            </div>
+            <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 card-hover">
+                <form id="dnsForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Tên Profile</label>
+                        <input type="text" id="profileName" value="My Custom DNS" placeholder="VD: Cloudflare DNS" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-300 mb-2">Server URL (DoH)</label>
+                        <input type="text" id="serverAddress" placeholder="https://dns.example.com/dns-query" class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-white placeholder-slate-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-download"></i> Tải Profile (.mobileconfig)
+                    </button>
+                </form>
+                <p class="text-xs text-slate-500 mt-4 text-center">
+                    <i class="fas fa-info-circle"></i> Profile tương thích iOS 14+ & macOS Big Sur+
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="providers" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">DNS Providers</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">Chọn DNS Provider phù hợp. Nhấn vào để xem chi tiết và tải profile DoH</p>
+            </div>
+            <div id="providerList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="about" class="py-16 px-4 border-t border-slate-800">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-6">Tại sao cần mã hóa DNS?</h2>
+            <div class="grid md:grid-cols-3 gap-8 mt-10">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
+                    <div class="w-14 h-14 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-shield text-blue-400 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Bảo mật隐私</h3>
+                    <p class="text-slate-400 text-sm">ISP không thể thấy bạn truy cập website nào</p>
+                </div>
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
+                    <div class="w-14 h-14 bg-green-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-ban text-green-400 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Chặn quảng cáo</h3>
+                    <p class="text-slate-400 text-sm">Nhiều provider hỗ trợ chặn quảng cáo & tracking ở tầng DNS</p>
+                </div>
+                <div class="bg-slate-800/30 border border-slate-700 rounded-2xl p-6 card-hover">
+                    <div class="w-14 h-14 bg-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bolt text-purple-400 text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Tốc độ</h3>
+                    <p class="text-slate-400 text-sm">DNS DoH/DoT thường nhanh hơn DNS mặc định của ISP</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 px-4 border-t border-slate-800 text-center text-slate-500 text-sm">
+        <p>DNS Security Hub &copy; 2026. Được tạo với <i class="fas fa-heart text-red-400"></i> bởi ducchung.com</p>
+    </footer>
+
+    <div id="providerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
             </button>
-        </form>
+            <div id="modalContent"></div>
+        </div>
     </div>
 
+    <input type="hidden" id="protocol" value="HTTPS">
+
     <script>
-        function uuidv4() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
-        function escapeXml(str) {
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&apos;');
-        }
-
-        document.getElementById('dnsForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('profileName').value;
-            const protocol = document.getElementById('protocol').value;
-            const address = document.getElementById('serverAddress').value;
-
-            if (!address.startsWith('https://')) {
-                alert('Server URL phải bắt đầu bằng https://');
-                return;
+        const providers = [
+            {
+                name: "AdGuard DNS",
+                icon: "fas fa-shield-halved",
+                color: "from-red-500 to-red-700",
+                tagColor: "bg-red-500/20 text-red-300",
+                tags: ["Chặn quảng cáo", "Privacy"],
+                description: "DNS miễn phí chặn quảng cáo, tracking và malware từ AdGuard",
+                dohUrl: "https://dns.adguard.com/dns-query",
+                dotServer: "dns.adguard.com",
+                features: ["Chặn quảng cáo", "Chặn tracking", "Chặn malware", "Zero logs"],
+                website: "https://adguard.com"
+            },
+            {
+                name: "Quad9",
+                icon: "fas fa-hashtag",
+                color: "from-pink-500 to-purple-700",
+                tagColor: "bg-pink-500/20 text-pink-300",
+                tags: ["Bảo mật", "Non-profit"],
+                description: "DNS bảo mật miễn phí từ tổ chức phi lợi nhuận, chặn malware & phishing",
+                dohUrl: "https://dns.quad9.net/dns-query",
+                dotServer: "dns.quad9.net",
+                features: ["Chặn malware", "Chặn phishing", "Zero logs", "Non-profit"],
+                website: "https://quad9.net"
+            },
+            {
+                name: "Cloudflare",
+                icon: "fas fa-cloud",
+                color: "from-orange-500 to-amber-600",
+                tagColor: "bg-orange-500/20 text-orange-300",
+                tags: ["Nhanh nhất", "Privacy"],
+                description: "DNS 1.1.1.1 nhanh nhất thế giới từ Cloudflare, hỗ trợ WARP",
+                dohUrl: "https://1.1.1.1/dns-query",
+                dotServer: "1.1.1.1",
+                features: ["Tốc độ cao", "Zero logs", "Hỗ trợ WARP", "Không bán data"],
+                website: "https://1.1.1.1"
+            },
+            {
+                name: "Google DNS",
+                icon: "fab fa-google",
+                color: "from-blue-500 to-blue-700",
+                tagColor: "bg-blue-500/20 text-blue-300",
+                tags: ["Ổn định", "Rộng khắp"],
+                description: "DNS 8.8.8.8 từ Google, ổn định với mạng lưới toàn cầu",
+                dohUrl: "https://dns.google/dns-query",
+                dotServer: "dns.google",
+                features: ["Ổn định", "Mạng lưới toàn cầu", "Tốc độ tốt", "DNSSEC"],
+                website: "https://dns.google"
+            },
+            {
+                name: "NextDNS",
+                icon: "fas fa-cog",
+                color: "from-cyan-500 to-blue-600",
+                tagColor: "bg-cyan-500/20 text-cyan-300",
+                tags: ["Tùy biến", "Chặn ads"],
+                description: "DNS tùy biến cao, chặn ads/trackers, tạo custom blocklist",
+                dohUrl: "https://firefox.dns.nextdns.io",
+                dotServer: "firefox.dns.nextdns.io",
+                features: ["Tùy biến blocklist", "Analytics", "Chặn ads", "Family protection"],
+                website: "https://nextdns.io"
+            },
+            {
+                name: "OpenDNS",
+                icon: "fas fa-globe",
+                color: "from-teal-500 to-green-600",
+                tagColor: "bg-teal-500/20 text-teal-300",
+                tags: ["Family", "Bảo mật"],
+                description: "DNS từ Cisco, hỗ trợ Family Shield chặn nội dung không phù hợp",
+                dohUrl: "https://doh.opendns.com/dns-query",
+                dotServer: "dns.opendns.com",
+                features: ["Family Shield", "Chặn phishing", "Thống kê", "Từ Cisco"],
+                website: "https://opendns.com"
+            },
+            {
+                name: "Mullvad DNS",
+                icon: "fas fa-mask",
+                color: "from-indigo-500 to-purple-600",
+                tagColor: "bg-indigo-500/20 text-indigo-300",
+                tags: ["Privacy", "Không ads"],
+                description: "DNS từ Mullvad VPN, privacy-focused với tùy chọn chặn ads",
+                dohUrl: "https://dns.mullvad.net/dns-query",
+                dotServer: "dns.mullvad.net",
+                features: ["Zero logs", "Privacy-focused", "Chọn blocker", "Không tracking"],
+                website: "https://mullvad.net"
+            },
+            {
+                name: "CleanBrowsing",
+                icon: "fas fa-broom",
+                color: "from-emerald-500 to-green-600",
+                tagColor: "bg-emerald-500/20 text-emerald-300",
+                tags: ["Family", "An toàn"],
+                description: "DNS bảo mật cho gia đình, chặn nội dung người lớn & malware",
+                dohUrl: "https://doh.cleanbrowsing.org/doh/family-filter",
+                dotServer: "family-cleanbrowsing.org",
+                features: ["Chặn nội dung 18+", "Chặn malware", "Family-safe", "Free tier"],
+                website: "https://cleanbrowsing.org"
+            },
+            {
+                name: "Comodo Secure DNS",
+                icon: "fas fa-lock",
+                color: "from-yellow-500 to-orange-600",
+                tagColor: "bg-yellow-500/20 text-yellow-300",
+                tags: ["Bảo mật", "Enterprise"],
+                description: "DNS bảo mật từ Comodo, chặn phishing & malware với AI",
+                dohUrl: "https://dns.comodo.com/dns-query",
+                dotServer: "dns.comodo.com",
+                features: ["AI detection", "Chặn phishing", "Chặn malware", "Tốc độ cao"],
+                website: "https://comodo.com"
             }
-            
+        ];
+
+        function renderProviders() {
+            const container = document.getElementById('providerList');
+            container.innerHTML = providers.map((p, i) => `
+                <div onclick="openModal(${i})" class="provider-card bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-6 cursor-pointer card-hover">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="${p.icon} text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">${p.name}</h3>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                ${p.tags.map(t => `<span class="tag ${p.tagColor} rounded-full font-medium">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-sm mb-4 line-clamp-2">${p.description}</p>
+                    <div class="flex items-center justify-between text-xs text-slate-500">
+                        <span class="flex items-center gap-1"><i class="fas fa-link"></i> ${new URL(p.dohUrl).hostname}</span>
+                        <span class="text-blue-400 font-medium flex items-center gap-1">Xem chi tiết <i class="fas fa-arrow-right text-[10px]"></i></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(index) {
+            const p = providers[index];
+            const modal = document.getElementById('providerModal');
+            const content = document.getElementById('modalContent');
+
+            const dohFilename = p.name.replace(/\s+/g, '_') + '_DoH.mobileconfig';
+            const dotFilename = p.name.replace(/\s+/g, '_') + '_DoT.mobileconfig';
+
+            content.innerHTML = `
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-14 h-14 bg-gradient-to-br ${p.color} rounded-xl flex items-center justify-center">
+                        <i class="${p.icon} text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">${p.name}</h3>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${p.tags.map(t => `<span class="tag ${p.tagColor} rounded-full font-medium">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                <p class="text-slate-300 mb-6">${p.description}</p>
+
+                <div class="space-y-4 mb-6">
+                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">Tính năng</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        ${p.features.map(f => `<div class="flex items-center gap-2 text-sm"><i class="fas fa-check-circle text-green-400"></i> ${f}</div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">DNS over HTTPS (DoH)</h4>
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
+                        <p class="text-xs text-slate-500 mb-2">Server URL</p>
+                        <p class="font-mono text-sm text-cyan-400 break-all">${p.dohUrl}</p>
+                    </div>
+                    <button onclick="generateProviderProfile('${p.name}', '${p.dohUrl}', 'HTTPS')" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-download"></i> Tải Profile DoH (.mobileconfig)
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-sm text-slate-400 uppercase tracking-wider">DNS over TLS (DoT)</h4>
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
+                        <p class="text-xs text-slate-500 mb-2">Server Name (cấu hình trên Android Private DNS)</p>
+                        <p class="font-mono text-sm text-green-400">${p.dotServer}</p>
+                    </div>
+                    <div class="bg-slate-900/50 border border-slate-600 rounded-xl p-4">
+                        <p class="text-xs text-slate-500 mb-1">Cách cài trên Android:</p>
+                        <p class="text-sm text-slate-300">Settings → Network → Private DNS → Nhập: <span class="font-mono text-green-400">${p.dotServer}</span></p>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-700 flex items-center justify-between">
+                    <a href="${p.website}" target="_blank" class="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                        <i class="fas fa-external-link-alt"></i> Website chính thức
+                    </a>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('providerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.getElementById('providerModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+
+        function generateProviderProfile(name, url, protocol) {
             const payloadUUID = uuidv4();
             const profileUUID = uuidv4();
-            const identifier = 'com.customdns.' + Date.now();
+            const identifier = 'com.dnsprovider.' + name.replace(/\s+/g, '').toLowerCase() + '.' + Date.now();
             const safeName = escapeXml(name);
-            const safeAddress = escapeXml(address);
-
-            const serverConfig = `<key>ServerURL</key>
-                    <string>${safeAddress}</string>`;
+            const safeUrl = escapeXml(url);
 
             const mobileconfig = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -79,7 +367,98 @@
             <dict>
                 <key>DNSProtocol</key>
                 <string>${protocol}</string>
-                ${serverConfig}
+                <key>ServerURL</key>
+                <string>${safeUrl}</string>
+            </dict>
+            <key>PayloadDisplayName</key>
+            <string>${safeName} DoH</string>
+            <key>PayloadIdentifier</key>
+            <string>${identifier}.settings</string>
+            <key>PayloadType</key>
+            <string>com.apple.dnsSettings.managed</string>
+            <key>PayloadUUID</key>
+            <string>${payloadUUID}</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>Cấu hình DNS over HTTPS từ ${safeName}</string>
+    <key>PayloadDisplayName</key>
+    <string>${safeName} DoH</string>
+    <key>PayloadIdentifier</key>
+    <string>${identifier}</string>
+    <key>PayloadOrganization</key>
+    <string>${safeName}</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>${profileUUID}</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+    <key>ConsentText</key>
+    <dict>
+        <key>default</key>
+        <string>Profile này sẽ cấu hình DNS over HTTPS (DoH) từ ${safeName} cho thiết bị của bạn. Mọi truy cập DNS sẽ được mã hóa qua giao thức HTTPS.</string>
+    </dict>
+</dict>
+</plist>`;
+
+            downloadFile(mobileconfig, name.replace(/\s+/g, '_') + '_DoH.mobileconfig');
+        }
+
+        function escapeXml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        }
+
+        function uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'application/x-apple-aspen-config' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('dnsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('profileName').value;
+            const address = document.getElementById('serverAddress').value;
+
+            if (!address.startsWith('https://')) {
+                alert('Server URL phải bắt đầu bằng https://');
+                return;
+            }
+
+            const payloadUUID = uuidv4();
+            const profileUUID = uuidv4();
+            const identifier = 'com.customdns.' + Date.now();
+            const safeName = escapeXml(name);
+            const safeAddress = escapeXml(address);
+
+            const mobileconfig = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>DNSSettings</key>
+            <dict>
+                <key>DNSProtocol</key>
+                <string>HTTPS</string>
+                <key>ServerURL</key>
+                <string>${safeAddress}</string>
             </dict>
             <key>PayloadDisplayName</key>
             <string>${safeName}</string>
@@ -115,16 +494,17 @@
 </dict>
 </plist>`;
 
-            const blob = new Blob([mobileconfig], { type: 'application/x-apple-aspen-config' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${name.replace(/\s+/g, '_')}.mobileconfig`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            downloadFile(mobileconfig, name.replace(/\s+/g, '_') + '.mobileconfig');
         });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        renderProviders();
     </script>
 </body>
 </html>
